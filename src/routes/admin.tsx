@@ -33,6 +33,7 @@ import {
   deleteBanner,
   getAdminOverview,
   getAllSettings,
+  getGatewayStatus,
   listAdminLogs,
   listBanners,
   listCommissions,
@@ -790,6 +791,7 @@ function SettingsTab() {
 
   return (
     <div className="space-y-4">
+      <GatewayCard />
       {SETTINGS_SECTIONS.map((section) => (
         <SettingsGroup
           key={section.table}
@@ -799,6 +801,94 @@ function SettingsTab() {
           row={(data?.[section.key] ?? null) as Record<string, unknown> | null}
         />
       ))}
+    </div>
+  );
+}
+
+function GatewayCard() {
+  const fn = useServerFn(getGatewayStatus);
+  const status = useQuery({ queryKey: ["admin-gateway-status"], queryFn: () => fn(), refetchOnWindowFocus: false });
+
+  const data = status.data;
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const webhookUrl = `${origin}/api/public/webhooks/onixpay`;
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
+        <div>
+          <CardTitle className="text-base">Gateway PIX — OnixPay</CardTitle>
+          <p className="pt-1 text-xs text-muted-foreground">
+            As credenciais ficam guardadas com segurança no servidor. Nenhum valor secreto é exibido aqui.
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => status.refetch()}
+          disabled={status.isFetching}
+        >
+          <RefreshCw className={`mr-2 size-4 ${status.isFetching ? "animate-spin" : ""}`} />
+          Testar conexão
+        </Button>
+      </CardHeader>
+      <CardContent className="space-y-4 text-sm">
+        {status.isLoading ? (
+          <p className="text-muted-foreground">Verificando integração...</p>
+        ) : status.error ? (
+          <ErrorState error={status.error} />
+        ) : data ? (
+          <>
+            <div className="grid gap-2 sm:grid-cols-3">
+              <CredentialPill label="Client ID" ok={data.hasClientId} value={data.clientIdMasked} />
+              <CredentialPill label="Client Secret" ok={data.hasClientSecret} />
+              <CredentialPill label="Webhook Secret" ok={data.hasWebhookSecret} />
+            </div>
+
+            <div className="rounded-lg border border-border p-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant={data.connection.ok ? "default" : "destructive"}>
+                  {data.connection.ok ? "Conectado" : "Sem conexão"}
+                </Badge>
+                <span className="text-xs text-muted-foreground">{data.connection.message}</span>
+              </div>
+              {data.connection.balance !== null ? (
+                <p className="pt-2 text-xs text-muted-foreground">
+                  Saldo disponível na OnixPay: <strong>{formatBRL(data.connection.balance)}</strong>
+                </p>
+              ) : null}
+            </div>
+
+            <div className="space-y-1 text-xs text-muted-foreground">
+              <p>
+                <strong>Endpoint da API:</strong> {data.apiBaseUrl}
+              </p>
+              <p>
+                <strong>URL de webhook (cadastre no painel OnixPay):</strong>{" "}
+                <code className="break-all">{webhookUrl}</code>
+              </p>
+              <p>
+                Depósitos e saques usam esta URL para receber a confirmação automática do pagamento. A
+                assinatura <code>X-OnixPay-Signature</code> é validada em todas as chamadas.
+              </p>
+            </div>
+          </>
+        ) : null}
+      </CardContent>
+    </Card>
+  );
+}
+
+function CredentialPill({ label, ok, value }: { label: string; ok: boolean; value?: string | null }) {
+  return (
+    <div className="rounded-lg border border-border p-3">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="pt-1 text-sm font-medium">
+        {ok ? (value ?? "Configurado") : "Não configurado"}
+      </p>
+      <Badge className="mt-2" variant={ok ? "default" : "destructive"}>
+        {ok ? "OK" : "Pendente"}
+      </Badge>
     </div>
   );
 }
