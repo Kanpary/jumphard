@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import QRCode from "qrcode";
 import { useServerFn } from "@tanstack/react-start";
 import { Copy, Loader2, QrCode } from "lucide-react";
 import { toast } from "sonner";
@@ -32,7 +33,26 @@ export function DepositDialog({ minDeposit, onCredited, trigger }: Props) {
   const [amount, setAmount] = useState(String(minDeposit || 10));
   const [loading, setLoading] = useState(false);
   const [pix, setPix] = useState<{ depositId: string; pixCode: string; amount: number } | null>(null);
+  const [qrImage, setQrImage] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (!pix) {
+      setQrImage(null);
+      return;
+    }
+    let active = true;
+    QRCode.toDataURL(pix.pixCode, { width: 320, margin: 1, errorCorrectionLevel: "M" })
+      .then((url) => {
+        if (active) setQrImage(url);
+      })
+      .catch(() => {
+        if (active) setQrImage(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, [pix]);
 
   useEffect(() => {
     if (!pix) return;
@@ -81,7 +101,7 @@ export function DepositDialog({ minDeposit, onCredited, trigger }: Props) {
           <DialogTitle>Depositar via PIX</DialogTitle>
           <DialogDescription>
             {pix
-              ? "Copie o código abaixo e pague no app do seu banco. O saldo cai automaticamente."
+              ? "Escaneie o QR Code ou copie o código abaixo no app do seu banco. O saldo cai automaticamente."
               : `Depósito mínimo de ${formatBRL(minDeposit)}.`}
           </DialogDescription>
         </DialogHeader>
@@ -91,6 +111,21 @@ export function DepositDialog({ minDeposit, onCredited, trigger }: Props) {
             <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 p-3 text-sm">
               <QrCode className="size-4 text-primary" />
               Valor: <strong>{formatBRL(pix.amount)}</strong>
+            </div>
+            <div className="flex justify-center">
+              {qrImage ? (
+                <img
+                  src={qrImage}
+                  alt={`QR Code PIX de ${formatBRL(pix.amount)} para depósito`}
+                  className="size-56 rounded-lg border border-border bg-white p-2"
+                  width={224}
+                  height={224}
+                />
+              ) : (
+                <div className="flex size-56 items-center justify-center rounded-lg border border-border bg-muted/40">
+                  <Loader2 className="size-6 animate-spin text-muted-foreground" />
+                </div>
+              )}
             </div>
             <Textarea readOnly value={pix.pixCode} rows={5} className="font-mono text-xs" />
             <Button

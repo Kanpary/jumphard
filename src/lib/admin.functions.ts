@@ -734,3 +734,70 @@ export const listAdminLogs = createServerFn({ method: "GET" })
       admin: (profiles ?? []).find((p) => p.user_id === row.admin_user_id) ?? null,
     }));
   });
+
+/* ------------------------------------------------------------------ */
+/* Gateway OnixPay                                                     */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Status da integração OnixPay: mostra se as credenciais estão presentes no
+ * servidor (nunca expõe os valores) e testa a conexão consultando o saldo.
+ */
+export const getGatewayStatus = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { assertAdmin } = await import("./guards.server");
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const clientId = process.env["ONIXPAY_CLIENT_ID"] ?? "";
+    const hasClientId = Boolean(clientId);
+    const hasClientSecret = Boolean(process.env["ONIXPAY_CLIENT_SECRET"]);
+    const hasWebhookSecret = Boolean(process.env["ONIXPAY_WEBHOOK_SECRET"]);
+
+    const { data: config } = await supabaseAdmin
+      .from("onixpay_config")
+      .select("*")
+      .limit(1)
+      .maybeSingle();
+
+    const apiBaseUrl =
+      config?.api_base_url || process.env["ONIXPAY_API_BASE_URL"] || "https://onixpay.space/api/v2";
+
+    let connection: { ok: boolean; message: string; balance: number | null } = {
+      ok: false,
+      message: "Credenciais ausentes no servidor.",
+      balance: null,
+    };
+
+    if (hasClientId && hasClientSecret) {
+      try {
+        const { getAccountBalance } = await import("./onixpay.server");
+        const result = await getAccountBalance(config?.api_base_url ?? null);
+        const available = result.balance?.available;
+        connection = {
+          ok: result.statusCode === 200 || typeof available === "number",
+          message: result.message ?? "Conexão estabelecida com a OnixPay.",
+          balance: typeof available === "number" ? available : null,
+        };
+      } catch (error) {
+        connection = {
+          ok: false,
+          message: error instanceof Error ? error.message : "Falha ao conectar na OnixPay.",
+          balance: null,
+        };
+      }
+    }
+
+    return {
+      hasClientId,
+      hasClientSecret,
+      hasWebhookSecret,
+      clientIdMasked: hasClientId ? `${clientId.slice(0, 4)}••••${clientId.slice(-4)}` : null,
+      apiBaseUrl,
+      depositCallbackUrl: config?.deposit_callback_url ?? null,
+      withdrawalCallbackUrl: config?.withdrawal_callback_url ?? null,
+      isEnabled: config?.is_enabled ?? true,
+      connection,
+    };
+  });
