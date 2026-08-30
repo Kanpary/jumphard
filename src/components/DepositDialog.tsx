@@ -101,7 +101,7 @@ export function DepositDialog({ minDeposit, onCredited, trigger }: Props) {
           <DialogTitle>Depositar via PIX</DialogTitle>
           <DialogDescription>
             {pix
-              ? "Copie o código abaixo e pague no app do seu banco. O saldo cai automaticamente."
+              ? "Escaneie o QR Code ou copie o código abaixo no app do seu banco. O saldo cai automaticamente."
               : `Depósito mínimo de ${formatBRL(minDeposit)}.`}
           </DialogDescription>
         </DialogHeader>
