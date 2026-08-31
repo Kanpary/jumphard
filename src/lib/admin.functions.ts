@@ -355,24 +355,116 @@ export const listDeposits = createServerFn({ method: "POST" })
     }));
   });
 
-/** Confirma manualmente um depósito pendente (credita saldo + bônus + comissões). */
-export const approveDeposit = createServerFn({ method: "POST" })
+/** Consulta o status real do depósito na OnixPay (sem creditar nada). */
+export const verifyDepositAtGateway = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => depositIdSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { assertAdmin } = await import("./guards.server");
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { getTransactionStatus, getAccountBalance } = await import("./onixpay.server");
+
+    const { data: deposit } = await supabaseAdmin
+      .from("deposits")
+      .select("id, status, transaction_id, external_id, amount")
+      .eq("id", data.depositId)
+      .maybeSingle();
+    if (!deposit) throw new Error("Depósito não encontrado.");
+    if (!deposit.transaction_id && !deposit.external_id) {
+      return {
+        found: false as const,
+        remoteStatus: null,
+        message: "Este depósito não possui transação na OnixPay (criado manualmente).",
+        balance: null,
+      };
+    }
+
+    const { data: config } = await supabaseAdmin
+      .from("onixpay_config")
+      .select("api_base_url")
+      .limit(1)
+      .maybeSingle();
+
+    const status = await getTransactionStatus({
+      transactionId: deposit.transaction_id ?? undefined,
+      referenceCode: deposit.external_id ?? undefined,
+      apiBaseUrl: config?.api_base_url ?? null,
+    });
+    const remote = status.transaction?.status?.toUpperCase() ?? null;
+    const balance = await getAccountBalance(config?.api_base_url ?? null).catch(() => null);
+
+    return {
+      found: Boolean(status.transaction),
+      remoteStatus: remote,
+      paidAt: status.transaction?.paid_at ?? null,
+      remoteAmount: status.transaction?.amount ?? null,
+      message: status.message ?? null,
+      balance: balance?.balance ?? null,
+    };
+  });
+
+/** Confirma um depósito pendente somente após a OnixPay confirmar o pagamento. */
+export const approveDeposit = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => approveDepositSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { assertAdmin, logAdminAction } = await import("./guards.server");
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { creditDeposit } = await import("./payments.server");
+    const { getTransactionStatus } = await import("./onixpay.server");
+
+    const { data: deposit } = await supabaseAdmin
+      .from("deposits")
+      .select("id, status, transaction_id, external_id")
+      .eq("id", data.depositId)
+      .maybeSingle();
+    if (!deposit) throw new Error("Depósito não encontrado.");
+
+    let remoteStatus: string | null = null;
+    if (deposit.transaction_id || deposit.external_id) {
+      const { data: config } = await supabaseAdmin
+        .from("onixpay_config")
+        .select("api_base_url")
+        .limit(1)
+        .maybeSingle();
+      try {
+        const status = await getTransactionStatus({
+          transactionId: deposit.transaction_id ?? undefined,
+          referenceCode: deposit.external_id ?? undefined,
+          apiBaseUrl: config?.api_base_url ?? null,
+        });
+        remoteStatus = status.transaction?.status?.toUpperCase() ?? null;
+      } catch (error) {
+        console.error("approveDeposit:gateway", error);
+        remoteStatus = null;
+      }
+    }
+
+    if (remoteStatus !== "PAID" && !data.force) {
+      throw new Error(
+        remoteStatus
+          ? `Pagamento não confirmado na OnixPay (status atual: ${remoteStatus}). O saldo não foi creditado.`
+          : "Pagamento não localizado na OnixPay. O saldo não foi creditado.",
+      );
+    }
 
     const result = await creditDeposit(supabaseAdmin, data.depositId, { adminId: context.userId });
     await logAdminAction(supabaseAdmin, {
       admin_user_id: context.userId,
-      action: "approve_deposit",
-      metadata: { depositId: data.depositId, credited: result.credited },
+      action: data.force && remoteStatus !== "PAID" ? "approve_deposit_forced" : "approve_deposit",
+      metadata: {
+        depositId: data.depositId,
+        credited: result.credited,
+        gatewayStatus: remoteStatus,
+        forced: Boolean(data.force) && remoteStatus !== "PAID",
+        reason: data.reason ?? null,
+      },
     });
-    return result;
+    return { ...result, gatewayStatus: remoteStatus };
   });
+
 
 export const rejectDeposit = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
