@@ -103,16 +103,21 @@ function Landing() {
                   loading="lazy"
                 />
               ) : (
-                <div className="flex h-64 flex-col items-center justify-center gap-3 md:h-80">
-                  <div
-                    className="flex size-24 items-center justify-center rounded-3xl"
-                    style={{ background: "var(--gradient-primary)" }}
-                  >
-                    <Gamepad2 className="size-12 text-primary-foreground" />
-                  </div>
-                  <p className="text-sm text-muted-foreground">Prévia do Jump Cash</p>
+                <div className="relative">
+                  <img
+                    src={gamePreview}
+                    alt="Prévia animada do jogo Jump Cash com o personagem saltando entre plataformas e moedas"
+                    className="h-64 w-full object-cover md:h-80"
+                    width={1280}
+                    height={960}
+                    loading="lazy"
+                  />
+                  <p className="absolute bottom-0 w-full bg-background/70 px-4 py-2 text-center text-xs text-muted-foreground backdrop-blur">
+                    Prévia do Jump Cash
+                  </p>
                 </div>
               )}
+
             </CardContent>
           </Card>
         </section>
