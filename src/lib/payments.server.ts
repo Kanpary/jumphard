@@ -210,9 +210,22 @@ export async function creditDeposit(
 
   const { data: wallet } = await admin
     .from("wallets")
-    .select("total_deposited")
+    .select("total_deposited, rollover_required")
     .eq("user_id", deposit.user_id)
     .maybeSingle();
+
+  // Rollover: exige apostar N vezes o valor creditado antes de liberar saque.
+  const { data: rolloverProfile } = await admin
+    .from("profiles")
+    .select("custom_rollover_multiplier")
+    .eq("user_id", deposit.user_id)
+    .maybeSingle();
+  const multiplier = Number(
+    rolloverProfile?.custom_rollover_multiplier ?? financial?.rollover_multiplier ?? 0,
+  );
+  const rolloverEnabled = financial?.rollover_enabled ?? false;
+  const addedRollover =
+    rolloverEnabled && multiplier > 0 ? Number((total * multiplier).toFixed(2)) : 0;
 
   await applyWalletMovement(admin, {
     userId: deposit.user_id,
@@ -221,8 +234,14 @@ export async function creditDeposit(
     type: "deposit",
     description: bonus > 0 ? `Depósito PIX + bônus de ${formatPercent(bonusPercent)}` : "Depósito PIX",
     adminId: options?.adminId ?? null,
-    extra: { total_deposited: Number(wallet?.total_deposited ?? 0) + amount },
+    extra: {
+      total_deposited: Number(wallet?.total_deposited ?? 0) + amount,
+      ...(addedRollover > 0
+        ? { rollover_required: Number(wallet?.rollover_required ?? 0) + addedRollover }
+        : {}),
+    },
   });
+
 
   await payAffiliateCommissions(admin, deposit.user_id, amount, depositId);
 
