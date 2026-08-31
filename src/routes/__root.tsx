@@ -78,13 +78,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Panda Pay | Jogue e ganhe com saque via PIX" },
+      { title: "Jump Cash | Jogue e ganhe com saque via PIX" },
       {
         name: "description",
         content:
-          "Plataforma Panda Pay: jogue o Panda Jump, acumule moedas e saque seus ganhos via PIX na hora.",
+          "Plataforma Jump Cash: jogue o Jump Cash, acumule moedas e saque seus ganhos via PIX na hora.",
       },
-      { property: "og:title", content: "Panda Pay | Jogue e ganhe com saque via PIX" },
+      { property: "og:title", content: "Jump Cash | Jogue e ganhe com saque via PIX" },
       {
         property: "og:description",
         content: "Depósito e saque via PIX, jogo de habilidade e programa de afiliados.",

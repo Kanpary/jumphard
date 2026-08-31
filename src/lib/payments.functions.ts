@@ -44,7 +44,7 @@ export const createDeposit = createServerFn({ method: "POST" })
       nome: profile.full_name || "Jogador",
       cpf: profile.cpf,
       valor: data.amount,
-      descricao: "Depósito Panda Pay",
+      descricao: "Depósito Jump Cash",
       urlnoty,
       apiBaseUrl: config?.api_base_url ?? null,
     });

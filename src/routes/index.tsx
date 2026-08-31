@@ -10,13 +10,13 @@ import { fetchBanners, fetchPublicSettings } from "@/lib/settings";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Panda Pay | Jogue o Panda Jump e saque via PIX" },
+      { title: "Jump Cash | Jogue o Jump Cash e saque via PIX" },
       {
         name: "description",
         content:
-          "Deposite via PIX, jogue o Panda Jump, colete moedas e saque seus ganhos na hora. Programa de afiliados com comissão em dois níveis.",
+          "Deposite via PIX, jogue o Jump Cash, colete moedas e saque seus ganhos na hora. Programa de afiliados com comissão em dois níveis.",
       },
-      { property: "og:title", content: "Panda Pay | Jogue o Panda Jump e saque via PIX" },
+      { property: "og:title", content: "Jump Cash | Jogue o Jump Cash e saque via PIX" },
       {
         property: "og:description",
         content: "Depósito e saque via PIX, jogo de habilidade e comissões de afiliado em dois níveis.",
@@ -33,7 +33,7 @@ function Landing() {
   const settings = useQuery({ queryKey: ["public-settings"], queryFn: fetchPublicSettings });
   const banners = useQuery({ queryKey: ["banners", "landing"], queryFn: () => fetchBanners("landing") });
 
-  const title = settings.data?.game?.game_title ?? "Panda Jump";
+  const title = settings.data?.game?.game_title ?? "Jump Cash";
   const subtitle =
     settings.data?.game?.game_subtitle ?? "Pule, colete moedas e transforme habilidade em dinheiro real.";
   const minDeposit = Number(settings.data?.financial?.min_deposit ?? 10);
@@ -42,7 +42,7 @@ function Landing() {
     <div className="min-h-screen" style={{ background: "var(--gradient-hero)" }}>
       <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-6">
         <span className="text-lg font-black tracking-tight text-foreground">
-          Panda<span className="text-primary">Pay</span>
+          Jump<span className="text-primary">Cash</span>
         </span>
         <nav className="flex items-center gap-2">
           {!loading && user ? (
@@ -98,7 +98,7 @@ function Landing() {
               {banners.data?.[0] ? (
                 <img
                   src={banners.data[0].image_url}
-                  alt={banners.data[0].title ?? "Panda Pay"}
+                  alt={banners.data[0].title ?? "Jump Cash"}
                   className="h-64 w-full object-cover md:h-80"
                   loading="lazy"
                 />
@@ -110,7 +110,7 @@ function Landing() {
                   >
                     <Gamepad2 className="size-12 text-primary-foreground" />
                   </div>
-                  <p className="text-sm text-muted-foreground">Prévia do Panda Jump</p>
+                  <p className="text-sm text-muted-foreground">Prévia do Jump Cash</p>
                 </div>
               )}
             </CardContent>
@@ -154,7 +154,7 @@ function Landing() {
           <span className="inline-flex items-center gap-2">
             <ShieldCheck className="size-4 text-primary" /> Pagamentos processados via PIX
           </span>
-          <span>© {new Date().getFullYear()} Panda Pay. Proibido para menores de 18 anos.</span>
+          <span>© {new Date().getFullYear()} Jump Cash. Proibido para menores de 18 anos.</span>
         </div>
       </footer>
     </div>
