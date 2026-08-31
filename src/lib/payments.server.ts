@@ -296,3 +296,35 @@ export function resolveWebhookUrl(requestUrl: string, configured?: string | null
   const origin = new URL(requestUrl).origin;
   return `${origin}${ONIXPAY_WEBHOOK_PATH}`;
 }
+
+/** Soma o valor apostado ao progresso de rollover do jogador. */
+export async function addRolloverProgress(admin: Admin, userId: string, betAmount: number) {
+  if (!(betAmount > 0)) return;
+  const { data: wallet } = await admin
+    .from("wallets")
+    .select("rollover_required, rollover_progress")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (!wallet) return;
+  const required = Number(wallet.rollover_required ?? 0);
+  if (required <= 0) return;
+  const progress = Math.min(required, Number(wallet.rollover_progress ?? 0) + betAmount);
+  await admin
+    .from("wallets")
+    .update({ rollover_progress: Number(progress.toFixed(2)) })
+    .eq("user_id", userId);
+}
+
+/** Situação atual do rollover do jogador. */
+export function rolloverState(wallet: { rollover_required?: number | null; rollover_progress?: number | null } | null) {
+  const required = Number(wallet?.rollover_required ?? 0);
+  const progress = Math.min(required, Number(wallet?.rollover_progress ?? 0));
+  const remaining = Number(Math.max(0, required - progress).toFixed(2));
+  return {
+    required,
+    progress,
+    remaining,
+    percent: required > 0 ? Math.min(100, Math.round((progress / required) * 100)) : 100,
+    completed: remaining <= 0,
+  };
+}
