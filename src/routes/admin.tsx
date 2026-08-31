@@ -45,6 +45,7 @@ import {
   saveBanner,
   setUserRole,
   updateSettings,
+  verifyDepositAtGateway,
 } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/admin")({
@@ -431,7 +432,10 @@ function DepositsTab() {
   const listFn = useServerFn(listDeposits);
   const approveFn = useServerFn(approveDeposit);
   const rejectFn = useServerFn(rejectDeposit);
+  const verifyFn = useServerFn(verifyDepositAtGateway);
   const [status, setStatus] = useState<StatusFilter>("pending");
+  const [checks, setChecks] = useState<Record<string, { label: string; paid: boolean }>>({});
+  const [checking, setChecking] = useState<string | null>(null);
 
   const deposits = useQuery({
     queryKey: ["admin-deposits", status],
@@ -441,7 +445,7 @@ function DepositsTab() {
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["admin-deposits"] });
 
   const approveMutation = useMutation({
-    mutationFn: (depositId: string) => approveFn({ data: { depositId } }),
+    mutationFn: (input: { depositId: string; force?: boolean }) => approveFn({ data: input }),
     onSuccess: () => {
       toast.success("Depósito confirmado");
       void refresh();
@@ -457,9 +461,33 @@ function DepositsTab() {
     onError: (err: Error) => toast.error(friendlyError(err)),
   });
 
+  const verify = async (depositId: string) => {
+    setChecking(depositId);
+    try {
+      const result = await verifyFn({ data: { depositId } });
+      const paid = result.remoteStatus === "PAID";
+      const label = paid
+        ? "Pago e confirmado na OnixPay"
+        : result.remoteStatus
+          ? `OnixPay: ${result.remoteStatus}`
+          : (result.message ?? "Não localizado na OnixPay");
+      setChecks((prev) => ({ ...prev, [depositId]: { label, paid } }));
+      if (paid) toast.success(label);
+      else toast.warning(label);
+    } catch (err) {
+      toast.error(friendlyError(err as Error));
+    } finally {
+      setChecking(null);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <StatusFilterBar value={status} onChange={setStatus} options={DEPOSIT_STATUSES} />
+      <p className="text-xs text-muted-foreground">
+        A confirmação só credita o jogador quando a OnixPay retorna o pagamento como PAGO. Use
+        &quot;Verificar na OnixPay&quot; para consultar o gateway antes de aprovar.
+      </p>
       {deposits.isLoading ? (
         <p className="text-sm text-muted-foreground">Carregando...</p>
       ) : null}
@@ -468,33 +496,73 @@ function DepositsTab() {
         <EmptyState>Nenhum registro para este filtro.</EmptyState>
       ) : null}
       <div className="space-y-3">
-        {(deposits.data ?? []).map((row) => (
-          <Card key={row.id}>
-            <CardContent className="flex flex-wrap items-center justify-between gap-4 p-4">
-              <div className="min-w-52">
-                <p className="font-semibold text-foreground">{row.profile?.full_name ?? "Sem nome"}</p>
-                <p className="text-xs text-muted-foreground">{row.profile?.email ?? "-"}</p>
-                <p className="text-xs text-muted-foreground">{formatDateTime(row.created_at)}</p>
-              </div>
-              <p className="text-lg font-bold text-foreground">{formatBRL(row.amount)}</p>
-              <StatusBadge status={row.status} />
-              {row.status === "pending" ? (
-                <div className="flex gap-2">
-                  <Button size="sm" onClick={() => approveMutation.mutate(row.id)}>
-                    Confirmar
-                  </Button>
-                  <Button size="sm" variant="destructive" onClick={() => rejectMutation.mutate(row.id)}>
-                    Recusar
-                  </Button>
+        {(deposits.data ?? []).map((row) => {
+          const check = checks[row.id];
+          return (
+            <Card key={row.id}>
+              <CardContent className="flex flex-wrap items-center justify-between gap-4 p-4">
+                <div className="min-w-52">
+                  <p className="font-semibold text-foreground">{row.profile?.full_name ?? "Sem nome"}</p>
+                  <p className="text-xs text-muted-foreground">{row.profile?.email ?? "-"}</p>
+                  <p className="text-xs text-muted-foreground">{formatDateTime(row.created_at)}</p>
+                  {check ? (
+                    <p
+                      className={`mt-1 text-xs font-medium ${check.paid ? "text-primary" : "text-destructive"}`}
+                    >
+                      {check.label}
+                    </p>
+                  ) : null}
                 </div>
-              ) : null}
-            </CardContent>
-          </Card>
-        ))}
+                <p className="text-lg font-bold text-foreground">{formatBRL(row.amount)}</p>
+                <StatusBadge status={row.status} />
+                {row.status === "pending" ? (
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={checking === row.id}
+                      onClick={() => void verify(row.id)}
+                    >
+                      {checking === row.id ? "Verificando..." : "Verificar na OnixPay"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      disabled={approveMutation.isPending}
+                      onClick={() => approveMutation.mutate({ depositId: row.id })}
+                    >
+                      Confirmar
+                    </Button>
+                    {check && !check.paid ? (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => {
+                          if (
+                            window.confirm(
+                              "A OnixPay não confirmou este pagamento. Creditar mesmo assim? A ação ficará registrada no log administrativo.",
+                            )
+                          ) {
+                            approveMutation.mutate({ depositId: row.id, force: true });
+                          }
+                        }}
+                      >
+                        Forçar crédito
+                      </Button>
+                    ) : null}
+                    <Button size="sm" variant="destructive" onClick={() => rejectMutation.mutate(row.id)}>
+                      Recusar
+                    </Button>
+                  </div>
+                ) : null}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );
 }
+
 
 function WithdrawalsTab() {
   const queryClient = useQueryClient();
