@@ -45,6 +45,7 @@ import {
   saveBanner,
   setUserRole,
   updateSettings,
+  verifyDepositAtGateway,
 } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/admin")({
