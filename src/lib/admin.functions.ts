@@ -577,7 +577,7 @@ export const approveWithdrawal = createServerFn({ method: "POST" })
         cpf: profile.cpf,
         valor: Number(withdrawal.net_amount || withdrawal.amount),
         chave_pix: withdrawal.pix_key,
-        descricao: "Saque Panda Pay",
+        descricao: "Saque Jump Cash",
         urlnoty,
         apiBaseUrl: config?.api_base_url ?? null,
       });

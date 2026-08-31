@@ -18,13 +18,13 @@ import { formatBRL } from "@/lib/money";
 export const Route = createFileRoute("/jogar")({
   head: () => ({
     meta: [
-      { title: "Panda Jump | Jogar e ganhar" },
+      { title: "Jump Cash | Jogar e ganhar" },
       {
         name: "description",
         content: "Aposte, pule entre as plataformas, colete moedas e retire seu prêmio quando quiser.",
       },
-      { property: "og:title", content: "Panda Jump | Jogar e ganhar" },
-      { property: "og:description", content: "Jogo de habilidade Panda Jump com prêmios em dinheiro real." },
+      { property: "og:title", content: "Jump Cash | Jogar e ganhar" },
+      { property: "og:description", content: "Jogo de habilidade Jump Cash com prêmios em dinheiro real." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

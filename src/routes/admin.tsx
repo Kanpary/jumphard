@@ -51,14 +51,14 @@ import {
 export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
-      { title: "Painel administrativo | Panda Pay" },
+      { title: "Painel administrativo | Jump Cash" },
       {
         name: "description",
         content:
           "Área restrita: acompanhe métricas, usuários, depósitos, saques, comissões e configurações da plataforma.",
       },
-      { property: "og:title", content: "Painel administrativo | Panda Pay" },
-      { property: "og:description", content: "Gestão completa da plataforma Panda Pay." },
+      { property: "og:title", content: "Painel administrativo | Jump Cash" },
+      { property: "og:description", content: "Gestão completa da plataforma Jump Cash." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
@@ -156,7 +156,7 @@ function AdminPage() {
           <h1 className="truncate text-lg font-black tracking-tight text-foreground sm:text-xl">
             Painel administrativo
           </h1>
-          <p className="text-xs text-muted-foreground sm:text-sm">Gestão da plataforma Panda Pay</p>
+          <p className="text-xs text-muted-foreground sm:text-sm">Gestão da plataforma Jump Cash</p>
         </div>
         <Button asChild variant="ghost" size="sm">
           <Link to="/dashboard">

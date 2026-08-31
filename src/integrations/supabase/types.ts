@@ -284,6 +284,8 @@ export type Database = {
           min_withdrawal_affiliate: number
           min_withdrawal_player: number
           pix_enabled: boolean
+          rollover_enabled: boolean
+          rollover_multiplier: number
           updated_at: string
           withdrawal_fee_fixed: number
           withdrawal_fee_percent: number
@@ -302,6 +304,8 @@ export type Database = {
           min_withdrawal_affiliate?: number
           min_withdrawal_player?: number
           pix_enabled?: boolean
+          rollover_enabled?: boolean
+          rollover_multiplier?: number
           updated_at?: string
           withdrawal_fee_fixed?: number
           withdrawal_fee_percent?: number
@@ -320,6 +324,8 @@ export type Database = {
           min_withdrawal_affiliate?: number
           min_withdrawal_player?: number
           pix_enabled?: boolean
+          rollover_enabled?: boolean
+          rollover_multiplier?: number
           updated_at?: string
           withdrawal_fee_fixed?: number
           withdrawal_fee_percent?: number
@@ -542,6 +548,8 @@ export type Database = {
           custom_game_difficulty: number | null
           custom_game_speed: number | null
           custom_jump_height: number | null
+          custom_rollover_multiplier: number | null
+          custom_rtp: number | null
           deleted_at: string | null
           email: string
           full_name: string
@@ -564,6 +572,8 @@ export type Database = {
           custom_game_difficulty?: number | null
           custom_game_speed?: number | null
           custom_jump_height?: number | null
+          custom_rollover_multiplier?: number | null
+          custom_rtp?: number | null
           deleted_at?: string | null
           email: string
           full_name?: string
@@ -586,6 +596,8 @@ export type Database = {
           custom_game_difficulty?: number | null
           custom_game_speed?: number | null
           custom_jump_height?: number | null
+          custom_rollover_multiplier?: number | null
+          custom_rtp?: number | null
           deleted_at?: string | null
           email?: string
           full_name?: string
@@ -668,6 +680,8 @@ export type Database = {
           comissao_disponivel: number
           created_at: string
           player_balance: number
+          rollover_progress: number
+          rollover_required: number
           total_affiliate_earned: number
           total_deposited: number
           total_withdrawn: number
@@ -679,6 +693,8 @@ export type Database = {
           comissao_disponivel?: number
           created_at?: string
           player_balance?: number
+          rollover_progress?: number
+          rollover_required?: number
           total_affiliate_earned?: number
           total_deposited?: number
           total_withdrawn?: number
@@ -690,6 +706,8 @@ export type Database = {
           comissao_disponivel?: number
           created_at?: string
           player_balance?: number
+          rollover_progress?: number
+          rollover_required?: number
           total_affiliate_earned?: number
           total_deposited?: number
           total_withdrawn?: number

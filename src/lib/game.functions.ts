@@ -98,7 +98,7 @@ export const startGameSession = createServerFn({ method: "POST" })
       wallet: "player",
       amount: -data.betAmount,
       type: "bet",
-      description: "Aposta Panda Jump",
+      description: "Aposta Jump Cash",
     });
 
     const { data: session, error } = await supabaseAdmin
@@ -217,7 +217,7 @@ export const cashOutGameSession = createServerFn({ method: "POST" })
         wallet: "player",
         amount: payout,
         type: "win",
-        description: `Prêmio Panda Jump (${data.coinsCollected} moedas)`,
+        description: `Prêmio Jump Cash (${data.coinsCollected} moedas)`,
         gameSessionId: session.id,
       });
     }

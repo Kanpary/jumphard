@@ -19,13 +19,13 @@ import { formatBRL } from "@/lib/money";
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
-      { title: "Minha conta | Panda Pay" },
+      { title: "Minha conta | Jump Cash" },
       {
         name: "description",
         content: "Veja seu saldo, deposite via PIX, solicite saques e acompanhe suas comissões de afiliado.",
       },
-      { property: "og:title", content: "Minha conta | Panda Pay" },
-      { property: "og:description", content: "Painel do jogador Panda Pay: saldo, PIX, partidas e indicações." },
+      { property: "og:title", content: "Minha conta | Jump Cash" },
+      { property: "og:description", content: "Painel do jogador Jump Cash: saldo, PIX, partidas e indicações." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -61,7 +61,7 @@ function DashboardPage() {
     <div className="min-h-screen" style={{ background: "var(--gradient-hero)" }}>
       <header className="mx-auto flex max-w-5xl items-center justify-between px-5 py-6">
         <Link to="/" className="text-lg font-black tracking-tight text-foreground">
-          Panda<span className="text-primary">Pay</span>
+          Jump<span className="text-primary">Cash</span>
         </Link>
         <div className="flex items-center gap-2">
           {overview.data?.isAdmin ? (
@@ -125,7 +125,7 @@ function DashboardPage() {
           />
           <Button asChild variant="default" className="shadow-[var(--shadow-glow)]">
             <Link to="/jogar">
-              <Gamepad2 className="mr-2 size-4" /> Jogar Panda Jump
+              <Gamepad2 className="mr-2 size-4" /> Jogar Jump Cash
             </Link>
           </Button>
         </div>

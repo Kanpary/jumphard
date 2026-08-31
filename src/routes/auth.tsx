@@ -21,14 +21,14 @@ export const Route = createFileRoute("/auth")({
   },
   head: () => ({
     meta: [
-      { title: "Entrar ou criar conta | Panda Pay" },
+      { title: "Entrar ou criar conta | Jump Cash" },
       {
         name: "description",
         content:
-          "Acesse sua conta Panda Pay ou cadastre-se em segundos para depositar via PIX e jogar o Panda Jump.",
+          "Acesse sua conta Jump Cash ou cadastre-se em segundos para depositar via PIX e jogar o Jump Cash.",
       },
-      { property: "og:title", content: "Entrar ou criar conta | Panda Pay" },
-      { property: "og:description", content: "Login e cadastro da plataforma Panda Pay." },
+      { property: "og:title", content: "Entrar ou criar conta | Jump Cash" },
+      { property: "og:description", content: "Login e cadastro da plataforma Jump Cash." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -112,7 +112,7 @@ function AuthPage() {
       <Card className="w-full max-w-md border-border/60 bg-card/80 backdrop-blur">
         <CardHeader>
           <Link to="/" className="text-sm font-black tracking-tight text-foreground">
-            Panda<span className="text-primary">Pay</span>
+            Jump<span className="text-primary">Cash</span>
           </Link>
           <CardTitle className="pt-2 text-2xl">{isRegister ? "Criar conta" : "Entrar"}</CardTitle>
           <CardDescription>
