@@ -50,6 +50,7 @@ const listSchema = z.object({
 });
 
 const depositIdSchema = z.object({ depositId: z.string().uuid(), reason: z.string().trim().max(200).optional() });
+const approveDepositSchema = depositIdSchema.extend({ force: z.boolean().optional() });
 const withdrawalIdSchema = z.object({
   withdrawalId: z.string().uuid(),
   reason: z.string().trim().max(200).optional(),
