@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { fetchBanners, fetchPublicSettings } from "@/lib/settings";
+import gamePreview from "@/assets/jumpcash-preview.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
