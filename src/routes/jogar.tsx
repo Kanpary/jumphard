@@ -6,6 +6,7 @@ import { ArrowLeft, Coins } from "lucide-react";
 import { toast } from "sonner";
 
 import { PandaJump } from "@/components/PandaJump";
+import { RolloverProgress } from "@/components/RolloverProgress";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -54,6 +55,7 @@ function PlayPage() {
     queryKey: ["player-overview", user?.id],
     queryFn: () => overviewFn(),
     enabled: Boolean(user),
+    refetchInterval: 5000,
   });
 
   const balance = Number(overview.data?.wallet?.player_balance ?? 0);
@@ -125,7 +127,8 @@ function PlayPage() {
         <span className="text-sm font-semibold text-foreground">Saldo: {formatBRL(balance)}</span>
       </header>
 
-      <main className="mx-auto max-w-3xl px-5 pb-16">
+      <main className="mx-auto max-w-3xl space-y-4 px-5 pb-16">
+        <RolloverProgress rollover={overview.data?.rollover} compact />
         {config ? (
           <div className="space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-card/70 p-4">

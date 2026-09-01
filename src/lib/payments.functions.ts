@@ -151,7 +151,7 @@ export const requestWithdrawal = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => withdrawalSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { applyWalletMovement } = await import("./payments.server");
+    const { applyWalletMovement, rolloverState } = await import("./payments.server");
 
     const [{ data: financial }, { data: wallet }, { data: profile }] = await Promise.all([
       supabaseAdmin.from("financial_settings").select("*").limit(1).maybeSingle(),
@@ -170,6 +170,16 @@ export const requestWithdrawal = createServerFn({ method: "POST" })
       data.walletType === "affiliate" ? (wallet?.affiliate_balance ?? 0) : (wallet?.player_balance ?? 0),
     );
     if (data.amount > balance) throw new Error("Saldo insuficiente para este saque.");
+
+    // Rollover: saques da carteira de jogo só são liberados após cumprir o valor exigido.
+    if (data.walletType === "player") {
+      const rollover = rolloverState(wallet);
+      if (!rollover.completed) {
+        throw new Error(
+          `Rollover pendente: faltam R$ ${rollover.remaining.toFixed(2)} em apostas para liberar o saque.`,
+        );
+      }
+    }
 
     const feePercent = Number(financial?.withdrawal_fee_percent ?? 0);
     const feeFixed = Number(financial?.withdrawal_fee_fixed ?? 0);

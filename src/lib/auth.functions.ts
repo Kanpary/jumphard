@@ -85,3 +85,53 @@ export const registerPlayer = createServerFn({ method: "POST" })
 
     return { ok: true as const, userId, referralCode };
   });
+
+const availabilitySchema = z.object({
+  email: z.string().trim().max(180).optional().nullable(),
+  cpf: z.string().trim().max(20).optional().nullable(),
+  referralCode: z.string().trim().max(32).optional().nullable(),
+});
+
+/** Verifica em tempo real se e-mail/CPF já existem e se o código de indicação é válido. */
+export const checkAvailability = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => availabilitySchema.parse(input))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const result: { emailTaken: boolean | null; cpfTaken: boolean | null; referralValid: boolean | null } = {
+      emailTaken: null,
+      cpfTaken: null,
+      referralValid: null,
+    };
+
+    const email = data.email?.trim().toLowerCase();
+    if (email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      const { data: row } = await supabaseAdmin
+        .from("profiles")
+        .select("user_id")
+        .ilike("email", email)
+        .maybeSingle();
+      result.emailTaken = Boolean(row);
+    }
+
+    const cpf = (data.cpf ?? "").replace(/\D/g, "");
+    if (cpf.length === 11) {
+      const { data: row } = await supabaseAdmin
+        .from("profiles")
+        .select("user_id")
+        .eq("cpf", cpf)
+        .maybeSingle();
+      result.cpfTaken = Boolean(row);
+    }
+
+    const code = data.referralCode?.trim().toUpperCase();
+    if (code) {
+      const { data: row } = await supabaseAdmin
+        .from("profiles")
+        .select("user_id")
+        .eq("referral_code", code)
+        .maybeSingle();
+      result.referralValid = Boolean(row);
+    }
+
+    return result;
+  });

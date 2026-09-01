@@ -41,7 +41,7 @@ export const startGameSession = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => startSchema.parse(input))
   .handler(async ({ data, context }): Promise<GameConfig> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { applyWalletMovement } = await import("./payments.server");
+    const { applyWalletMovement, addRolloverProgress } = await import("./payments.server");
 
     const [{ data: game }, { data: influencer }, { data: character }, { data: profile }, { data: wallet }] =
       await Promise.all([
@@ -63,7 +63,7 @@ export const startGameSession = createServerFn({ method: "POST" })
       .eq("status", "active");
 
     const isInfluencer = Boolean(profile?.is_influencer);
-    const rtp = Number(game?.rtp_global ?? 95);
+    const rtp = Number(profile?.custom_rtp ?? game?.rtp_global ?? 95);
     const coinReturn = Number(
       profile?.custom_coin_return ??
         (isInfluencer ? (influencer?.coin_return ?? game?.coin_return ?? 1.5) : (game?.coin_return ?? 1.5)),
@@ -100,6 +100,9 @@ export const startGameSession = createServerFn({ method: "POST" })
       type: "bet",
       description: "Aposta Jump Cash",
     });
+
+    // Cada aposta conta para o cumprimento do rollover do depósito.
+    await addRolloverProgress(supabaseAdmin, context.userId, data.betAmount);
 
     const { data: session, error } = await supabaseAdmin
       .from("game_sessions")

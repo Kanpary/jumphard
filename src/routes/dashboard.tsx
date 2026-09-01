@@ -6,6 +6,7 @@ import { Copy, Gamepad2, LogOut, ShieldCheck, Users, Wallet } from "lucide-react
 import { toast } from "sonner";
 
 import { DepositDialog } from "@/components/DepositDialog";
+import { RolloverProgress } from "@/components/RolloverProgress";
 import { WithdrawDialog } from "@/components/WithdrawDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -46,6 +47,7 @@ function DashboardPage() {
     queryKey: ["player-overview", user?.id],
     queryFn: () => overviewFn(),
     enabled: Boolean(user),
+    refetchInterval: 5000,
   });
   const settings = useQuery({ queryKey: ["public-settings"], queryFn: fetchPublicSettings });
 
@@ -110,6 +112,8 @@ function DashboardPage() {
             </CardContent>
           </Card>
         </div>
+
+        <RolloverProgress rollover={overview.data?.rollover} />
 
         <div className="flex flex-wrap gap-3">
           <DepositDialog
