@@ -132,7 +132,7 @@ export const SETTINGS_SECTIONS = [
     table: "financial_settings",
     label: "Financeiro",
     description: "Limites de depósito e saque, taxas e bônus.",
-    groups: ["Depósitos", "Saques", "Bônus", "Atalhos de valor"],
+    groups: ["Depósitos", "Saques", "Rollover", "Bônus", "Atalhos de valor"],
   },
   {
     key: "commission",
@@ -227,6 +227,19 @@ export const FIELD_META: Record<string, FieldMeta> = {
   min_withdrawal_affiliate: { label: "Saque mínimo — afiliado", group: "Saques", control: "currency" },
   withdrawal_fee_percent: { label: "Taxa de saque (%)", group: "Saques", control: "percent" },
   withdrawal_fee_fixed: { label: "Taxa de saque fixa", group: "Saques", control: "currency" },
+  rollover_enabled: {
+    label: "Rollover de depósito ativo",
+    help: "Quando ativo, o jogador só consegue sacar da carteira de jogo depois de apostar o valor exigido.",
+    group: "Rollover",
+    control: "switch",
+  },
+  rollover_multiplier: {
+    label: "Multiplicador de rollover (x)",
+    help: "Multiplica o valor creditado no depósito. Ex.: 1 exige apostar 1x o depósito; 2 exige 2x. Pode ser sobrescrito por jogador na aba Usuários.",
+    group: "Rollover",
+    control: "number",
+    step: 0.1,
+  },
   deposit_bonus_enabled: { label: "Bônus de depósito ativo", group: "Bônus", control: "switch" },
   deposit_bonus_percent: { label: "Percentual do bônus", group: "Bônus", control: "percent" },
   deposit_bonus_min_amount: { label: "Depósito mínimo para bônus", group: "Bônus", control: "currency" },
