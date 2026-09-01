@@ -12,6 +12,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { formatBRL, formatDateTime } from "@/lib/money";
 import { supabase } from "@/integrations/supabase/client";
@@ -45,6 +54,7 @@ import {
   saveBanner,
   setUserRole,
   updateSettings,
+  updateUser,
   verifyDepositAtGateway,
 } from "@/lib/admin.functions";
 
@@ -362,6 +372,7 @@ function UsersTab() {
                 <Button size="sm" variant="outline" onClick={() => promptAdjust(item.user_id)}>
                   Ajustar saldo
                 </Button>
+                <PlayerSettingsDialog user={item} onSaved={invalidate} />
                 <Button
                   size="sm"
                   variant={item.roles.includes("admin") ? "destructive" : "secondary"}
@@ -396,6 +407,181 @@ function UsersTab() {
         </div>
       </div>
     </div>
+  );
+}
+
+/* ---------------------------------------------------------------- */
+
+interface PlayerSettingsUser {
+  user_id: string;
+  full_name: string | null;
+  email: string | null;
+  is_influencer: boolean;
+  custom_rtp: number | null;
+  custom_rollover_multiplier: number | null;
+  custom_coin_return: number | null;
+  custom_game_difficulty: number | null;
+  custom_game_speed: number | null;
+  custom_jump_height: number | null;
+  custom_bonus_percent: number | null;
+  custom_commission_percent: number | null;
+}
+
+const PLAYER_FIELDS = [
+  {
+    key: "customRtp" as const,
+    column: "custom_rtp" as const,
+    label: "RTP do jogador (%)",
+    help: "Retorno teórico só deste jogador. Vazio usa o RTP global. Quanto maior, mais moedas ele precisa de menos para atingir o alvo.",
+  },
+  {
+    key: "customRolloverMultiplier" as const,
+    column: "custom_rollover_multiplier" as const,
+    label: "Rollover do depósito (x)",
+    help: "Multiplicador do valor depositado que este jogador precisa apostar antes de sacar. Vazio usa o valor global das configurações financeiras.",
+  },
+  {
+    key: "customCoinReturn" as const,
+    column: "custom_coin_return" as const,
+    label: "Retorno por moeda (x)",
+    help: "Multiplicador da aposta que define o prêmio máximo da partida. Ex.: 2 = pode ganhar até 2x a aposta.",
+  },
+  {
+    key: "customGameDifficulty" as const,
+    column: "custom_game_difficulty" as const,
+    label: "Dificuldade",
+    help: "Quanto maior, mais distantes e estreitas ficam as plataformas para este jogador.",
+  },
+  {
+    key: "customGameSpeed" as const,
+    column: "custom_game_speed" as const,
+    label: "Velocidade do jogo",
+    help: "Multiplicador da velocidade geral da partida. 1 = padrão.",
+  },
+  {
+    key: "customJumpHeight" as const,
+    column: "custom_jump_height" as const,
+    label: "Altura do pulo",
+    help: "Multiplicador da altura do pulo. Acima de 1 facilita, abaixo dificulta.",
+  },
+  {
+    key: "customBonusPercent" as const,
+    column: "custom_bonus_percent" as const,
+    label: "Bônus de depósito (%)",
+    help: "Percentual de bônus creditado nos depósitos deste jogador. Vazio usa o bônus global.",
+  },
+  {
+    key: "customCommissionPercent" as const,
+    column: "custom_commission_percent" as const,
+    label: "Comissão de afiliado (%)",
+    help: "Percentual de comissão que este usuário recebe pelas indicações. Vazio usa o percentual global.",
+  },
+];
+
+/** Configurações individuais por jogador (RTP, rollover, jogo, bônus e comissão). */
+function PlayerSettingsDialog({ user, onSaved }: { user: PlayerSettingsUser; onSaved: () => void }) {
+  const updateFn = useServerFn(updateUser);
+  const [open, setOpen] = useState(false);
+  const [values, setValues] = useState<Record<string, string>>({});
+  const [influencer, setInfluencer] = useState(user.is_influencer);
+
+  function openDialog(next: boolean) {
+    if (next) {
+      setValues(
+        Object.fromEntries(
+          PLAYER_FIELDS.map((field) => [
+            field.key,
+            user[field.column] === null || user[field.column] === undefined ? "" : String(user[field.column]),
+          ]),
+        ),
+      );
+      setInfluencer(user.is_influencer);
+    }
+    setOpen(next);
+  }
+
+  const mutation = useMutation({
+    mutationFn: async () => {
+      const payload: Record<string, unknown> = { userId: user.user_id, isInfluencer: influencer };
+      for (const field of PLAYER_FIELDS) {
+        const raw = (values[field.key] ?? "").trim().replace(",", ".");
+        if (raw === "") {
+          payload[field.key] = null;
+          continue;
+        }
+        const parsed = Number(raw);
+        if (!Number.isFinite(parsed) || parsed < 0) {
+          throw new Error(`Valor inválido em "${field.label}".`);
+        }
+        payload[field.key] = parsed;
+      }
+      return updateFn({ data: payload as never });
+    },
+    onSuccess: () => {
+      toast.success("Configurações do jogador salvas");
+      setOpen(false);
+      onSaved();
+    },
+    onError: (err: Error) => toast.error(friendlyError(err)),
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={openDialog}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="secondary">
+          Configurações
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Configurações de {user.full_name ?? user.email ?? "jogador"}</DialogTitle>
+          <DialogDescription>
+            Estes valores valem apenas para este usuário e substituem as configurações globais. Deixe o campo
+            vazio para voltar a usar o valor global.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="flex items-center justify-between rounded-lg border border-border/60 p-3">
+            <div className="pr-4">
+              <p className="text-sm font-medium">Conta influencer</p>
+              <p className="text-xs text-muted-foreground">
+                Aplica as configurações da aba Influencer (moedas, pulo e dificuldade diferenciados).
+              </p>
+            </div>
+            <Switch checked={influencer} onCheckedChange={setInfluencer} />
+          </div>
+
+          {PLAYER_FIELDS.map((field) => (
+            <div key={field.key} className="space-y-1.5">
+              <Label htmlFor={`${user.user_id}-${field.key}`}>{field.label}</Label>
+              <Input
+                id={`${user.user_id}-${field.key}`}
+                inputMode="decimal"
+                placeholder="Global"
+                value={values[field.key] ?? ""}
+                onChange={(event) =>
+                  setValues((prev) => ({
+                    ...prev,
+                    [field.key]: event.target.value.replace(/[^0-9.,]/g, ""),
+                  }))
+                }
+              />
+              <p className="text-xs text-muted-foreground">{field.help}</p>
+            </div>
+          ))}
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>
+            Cancelar
+          </Button>
+          <Button onClick={() => mutation.mutate()} disabled={mutation.isPending}>
+            {mutation.isPending ? "Salvando..." : "Salvar configurações"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
