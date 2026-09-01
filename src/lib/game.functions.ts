@@ -185,7 +185,7 @@ export const cashOutGameSession = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => cashOutSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { applyWalletMovement, addRolloverProgress } = await import("./payments.server");
+    const { applyWalletMovement } = await import("./payments.server");
 
     const { data: session } = await supabaseAdmin
       .from("game_sessions")
