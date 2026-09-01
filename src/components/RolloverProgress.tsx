@@ -14,8 +14,8 @@ export function RolloverProgress({
   rollover,
   compact = false,
 }: {
-  rollover?: RolloverInfo | null;
-  compact?: boolean;
+  rollover?: RolloverInfo | null | undefined;
+  compact?: boolean | undefined;
 }) {
   if (!rollover || rollover.required <= 0) return null;
 
