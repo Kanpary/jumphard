@@ -26,6 +26,8 @@ const updateUserSchema = z.object({
   customGameDifficulty: z.number().min(0).max(100).nullable().optional(),
   customGameSpeed: z.number().min(0).max(100).nullable().optional(),
   customJumpHeight: z.number().min(0).max(100).nullable().optional(),
+  customRtp: z.number().min(0).max(100).nullable().optional(),
+  customRolloverMultiplier: z.number().min(0).max(100).nullable().optional(),
   comissaoCpa: z.number().min(0).max(100000).nullable().optional(),
   comissaoCpaNivel2: z.number().min(0).max(100000).nullable().optional(),
 });
@@ -231,6 +233,9 @@ export const updateUser = createServerFn({ method: "POST" })
     if (data.customGameDifficulty !== undefined) patch["custom_game_difficulty"] = data.customGameDifficulty;
     if (data.customGameSpeed !== undefined) patch["custom_game_speed"] = data.customGameSpeed;
     if (data.customJumpHeight !== undefined) patch["custom_jump_height"] = data.customJumpHeight;
+    if (data.customRtp !== undefined) patch["custom_rtp"] = data.customRtp;
+    if (data.customRolloverMultiplier !== undefined)
+      patch["custom_rollover_multiplier"] = data.customRolloverMultiplier;
     if (data.comissaoCpa !== undefined) patch["comissao_cpa"] = data.comissaoCpa;
     if (data.comissaoCpaNivel2 !== undefined) patch["comissao_cpa_nivel2"] = data.comissaoCpaNivel2;
 
