@@ -33,6 +33,7 @@ export const getPlayerOverview = createServerFn({ method: "GET" })
     ]);
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { rolloverState } = await import("./payments.server");
     const { count: referralCount } = await supabaseAdmin
       .from("profiles")
       .select("user_id", { count: "exact", head: true })
@@ -44,6 +45,7 @@ export const getPlayerOverview = createServerFn({ method: "GET" })
       transactions: txRes.data ?? [],
       sessions: sessionsRes.data ?? [],
       commissions: commissionsRes.data ?? [],
+      rollover: rolloverState(walletRes.data),
       referralCount: referralCount ?? 0,
       isAdmin: Boolean(roleRes.data),
     };
