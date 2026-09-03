@@ -74,8 +74,25 @@ export function DepositDialog({ minDeposit, onCredited, trigger }: Props) {
     };
   }, [pix, check, onCredited]);
 
+  const parsedAmount = Number(amount.replace(",", "."));
+  const amountError = !amount.trim()
+    ? "Informe o valor do depósito."
+    : !Number.isFinite(parsedAmount)
+      ? "Valor inválido."
+      : parsedAmount < minDeposit
+        ? `O depósito mínimo é ${formatBRL(minDeposit)}.`
+        : parsedAmount > 50000
+          ? "Valor máximo por depósito: R$ 50.000,00."
+          : Math.round(parsedAmount * 100) !== Number((parsedAmount * 100).toFixed(0))
+            ? "Use no máximo 2 casas decimais."
+            : null;
+
   async function handleCreate(event: React.FormEvent) {
     event.preventDefault();
+    if (amountError) {
+      toast.error(amountError);
+      return;
+    }
     setLoading(true);
     try {
       const result = await create({ data: { amount: Number(amount) } });
