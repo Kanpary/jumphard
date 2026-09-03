@@ -196,32 +196,41 @@ function AdminPage() {
               </TabsList>
             </div>
 
-            <div className="mt-6">
-              <TabsContent value="overview">
+            <div className="mt-6 space-y-4">
+              <TabsContent value="overview" className="space-y-4">
+                <TabGuide tab="overview" />
                 <OverviewTab />
               </TabsContent>
-              <TabsContent value="users">
+              <TabsContent value="users" className="space-y-4">
+                <TabGuide tab="users" />
                 <UsersTab />
               </TabsContent>
-              <TabsContent value="deposits">
+              <TabsContent value="deposits" className="space-y-4">
+                <TabGuide tab="deposits" />
                 <DepositsTab />
               </TabsContent>
-              <TabsContent value="withdrawals">
+              <TabsContent value="withdrawals" className="space-y-4">
+                <TabGuide tab="withdrawals" />
                 <WithdrawalsTab />
               </TabsContent>
-              <TabsContent value="settings">
+              <TabsContent value="settings" className="space-y-4">
+                <TabGuide tab="settings" />
                 <SettingsTab />
               </TabsContent>
-              <TabsContent value="banners">
+              <TabsContent value="banners" className="space-y-4">
+                <TabGuide tab="banners" />
                 <BannersTab />
               </TabsContent>
-              <TabsContent value="commissions">
+              <TabsContent value="commissions" className="space-y-4">
+                <TabGuide tab="commissions" />
                 <CommissionsTab />
               </TabsContent>
-              <TabsContent value="logs">
+              <TabsContent value="logs" className="space-y-4">
+                <TabGuide tab="logs" />
                 <LogsTab />
               </TabsContent>
             </div>
+
           </Tabs>
         )}
       </main>
