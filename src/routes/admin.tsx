@@ -241,6 +241,25 @@ function AdminPage() {
 
 /* ---------------------------------------------------------------- */
 
+function TabGuide({ tab }: { tab: keyof typeof TAB_GUIDES }) {
+  const guide = TAB_GUIDES[tab];
+  if (!guide) return null;
+  return (
+    <details className="rounded-lg border border-border bg-card/60 px-4 py-3">
+      <summary className="cursor-pointer list-none text-sm font-semibold text-foreground">
+        Como usar esta aba — {guide.summary}
+      </summary>
+      <ul className="mt-3 list-disc space-y-1.5 pl-5 text-xs text-muted-foreground sm:text-sm">
+        {guide.steps.map((step) => (
+          <li key={step}>{step}</li>
+        ))}
+      </ul>
+    </details>
+  );
+}
+
+
+
 function OverviewTab() {
   const fn = useServerFn(getAdminOverview);
   const { data, isLoading, error } = useQuery({ queryKey: ["admin-overview"], queryFn: () => fn() });
