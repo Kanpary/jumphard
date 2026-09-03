@@ -28,6 +28,7 @@ import {
   COMMISSION_STATUSES,
   DEPOSIT_STATUSES,
   SETTINGS_SECTIONS,
+  TAB_GUIDES,
   WITHDRAWAL_STATUSES,
   fieldMeta,
   friendlyError,
@@ -196,32 +197,41 @@ function AdminPage() {
               </TabsList>
             </div>
 
-            <div className="mt-6">
-              <TabsContent value="overview">
+            <div className="mt-6 space-y-4">
+              <TabsContent value="overview" className="space-y-4">
+                <TabGuide tab="overview" />
                 <OverviewTab />
               </TabsContent>
-              <TabsContent value="users">
+              <TabsContent value="users" className="space-y-4">
+                <TabGuide tab="users" />
                 <UsersTab />
               </TabsContent>
-              <TabsContent value="deposits">
+              <TabsContent value="deposits" className="space-y-4">
+                <TabGuide tab="deposits" />
                 <DepositsTab />
               </TabsContent>
-              <TabsContent value="withdrawals">
+              <TabsContent value="withdrawals" className="space-y-4">
+                <TabGuide tab="withdrawals" />
                 <WithdrawalsTab />
               </TabsContent>
-              <TabsContent value="settings">
+              <TabsContent value="settings" className="space-y-4">
+                <TabGuide tab="settings" />
                 <SettingsTab />
               </TabsContent>
-              <TabsContent value="banners">
+              <TabsContent value="banners" className="space-y-4">
+                <TabGuide tab="banners" />
                 <BannersTab />
               </TabsContent>
-              <TabsContent value="commissions">
+              <TabsContent value="commissions" className="space-y-4">
+                <TabGuide tab="commissions" />
                 <CommissionsTab />
               </TabsContent>
-              <TabsContent value="logs">
+              <TabsContent value="logs" className="space-y-4">
+                <TabGuide tab="logs" />
                 <LogsTab />
               </TabsContent>
             </div>
+
           </Tabs>
         )}
       </main>
@@ -230,6 +240,25 @@ function AdminPage() {
 }
 
 /* ---------------------------------------------------------------- */
+
+function TabGuide({ tab }: { tab: keyof typeof TAB_GUIDES }) {
+  const guide = TAB_GUIDES[tab];
+  if (!guide) return null;
+  return (
+    <details className="rounded-lg border border-border bg-card/60 px-4 py-3">
+      <summary className="cursor-pointer list-none text-sm font-semibold text-foreground">
+        Como usar esta aba — {guide.summary}
+      </summary>
+      <ul className="mt-3 list-disc space-y-1.5 pl-5 text-xs text-muted-foreground sm:text-sm">
+        {guide.steps.map((step) => (
+          <li key={step}>{step}</li>
+        ))}
+      </ul>
+    </details>
+  );
+}
+
+
 
 function OverviewTab() {
   const fn = useServerFn(getAdminOverview);
