@@ -95,7 +95,7 @@ export function DepositDialog({ minDeposit, onCredited, trigger }: Props) {
     }
     setLoading(true);
     try {
-      const result = await create({ data: { amount: Number(amount) } });
+      const result = await create({ data: { amount: Number(parsedAmount.toFixed(2)) } });
       setPix({ depositId: result.depositId, pixCode: result.pixCode, amount: result.amount });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Falha ao gerar o PIX.");
