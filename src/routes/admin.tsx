@@ -946,6 +946,7 @@ function SettingsField({
           min={meta.min}
           max={meta.max}
           placeholder={control === "url" ? "https://..." : undefined}
+          aria-invalid={Boolean(error)}
           className={control === "currency" ? "pl-9" : control === "percent" ? "pr-9" : undefined}
           value={value === null ? "" : String(value)}
           onChange={(event) => {
@@ -959,6 +960,7 @@ function SettingsField({
           </span>
         ) : null}
       </div>
+      {error ? <p className="text-xs text-destructive">{error}</p> : null}
       {meta.help ? <p className="text-xs text-muted-foreground">{meta.help}</p> : null}
     </div>
   );
