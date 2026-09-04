@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { requestWithdrawal } from "@/lib/payments.functions";
-import { formatBRL } from "@/lib/money";
+import { formatBRL, formatCPF, formatPhone, isValidCPF, onlyDigits } from "@/lib/money";
 
 type WalletType = "player" | "affiliate";
 type PixKeyType = "cpf" | "email" | "phone" | "random";
@@ -48,14 +48,49 @@ export function WithdrawDialog({
   const min = walletType === "affiliate" ? minAffiliate : minPlayer;
   const balance = walletType === "affiliate" ? affiliateBalance : playerBalance;
 
+  const parsedAmount = Number(amount.replace(",", "."));
+  const amountError = !amount.trim()
+    ? "Informe o valor do saque."
+    : !Number.isFinite(parsedAmount)
+      ? "Valor inválido."
+      : parsedAmount < min
+        ? `O saque mínimo é ${formatBRL(min)}.`
+        : parsedAmount > balance
+          ? `Saldo insuficiente. Disponível: ${formatBRL(balance)}.`
+          : null;
+
+  const digits = onlyDigits(pixKey);
+  const pixKeyError = !pixKey.trim()
+    ? "Informe a chave PIX."
+    : pixKeyType === "cpf"
+      ? !isValidCPF(digits)
+        ? "CPF inválido."
+        : null
+      : pixKeyType === "email"
+        ? !/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(pixKey.trim())
+          ? "E-mail inválido."
+          : null
+        : pixKeyType === "phone"
+          ? digits.length < 10 || digits.length > 11
+            ? "Telefone inválido. Use DDD + número."
+            : null
+          : !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(pixKey.trim())
+            ? "Chave aleatória inválida (formato UUID)."
+            : null;
+
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
+    const error = amountError ?? pixKeyError;
+    if (error) {
+      toast.error(error);
+      return;
+    }
     setLoading(true);
     try {
       await request({
         data: {
-          amount: Number(amount),
-          pixKey: pixKey.trim(),
+          amount: Number(parsedAmount.toFixed(2)),
+          pixKey: pixKeyType === "cpf" || pixKeyType === "phone" ? digits : pixKey.trim(),
           pixKeyType,
           walletType,
         },
@@ -99,7 +134,13 @@ export function WithdrawDialog({
 
           <div className="space-y-1.5">
             <Label>Tipo de chave PIX</Label>
-            <Select value={pixKeyType} onValueChange={(value) => setPixKeyType(value as PixKeyType)}>
+            <Select
+              value={pixKeyType}
+              onValueChange={(value) => {
+                setPixKeyType(value as PixKeyType);
+                setPixKey("");
+              }}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -114,7 +155,30 @@ export function WithdrawDialog({
 
           <div className="space-y-1.5">
             <Label htmlFor="pix-key">Chave PIX</Label>
-            <Input id="pix-key" value={pixKey} onChange={(event) => setPixKey(event.target.value)} required />
+            <Input
+              id="pix-key"
+              value={pixKey}
+              inputMode={pixKeyType === "cpf" || pixKeyType === "phone" ? "numeric" : "text"}
+              type={pixKeyType === "email" ? "email" : "text"}
+              placeholder={
+                pixKeyType === "cpf"
+                  ? "000.000.000-00"
+                  : pixKeyType === "phone"
+                    ? "(11) 90000-0000"
+                    : pixKeyType === "email"
+                      ? "voce@email.com"
+                      : "00000000-0000-0000-0000-000000000000"
+              }
+              onChange={(event) => {
+                const value = event.target.value;
+                if (pixKeyType === "cpf") setPixKey(formatCPF(onlyDigits(value).slice(0, 11)));
+                else if (pixKeyType === "phone") setPixKey(formatPhone(onlyDigits(value).slice(0, 11)));
+                else setPixKey(value);
+              }}
+              aria-invalid={Boolean(pixKeyError)}
+              required
+            />
+            {pixKeyError ? <p className="text-xs text-destructive">{pixKeyError}</p> : null}
           </div>
 
           <div className="space-y-1.5">
@@ -124,10 +188,14 @@ export function WithdrawDialog({
               type="number"
               step="0.01"
               min={min}
+              max={balance}
+              inputMode="decimal"
               value={amount}
               onChange={(event) => setAmount(event.target.value)}
+              aria-invalid={Boolean(amountError)}
               required
             />
+            {amountError ? <p className="text-xs text-destructive">{amountError}</p> : null}
           </div>
 
           <Button type="submit" className="w-full" disabled={loading}>
