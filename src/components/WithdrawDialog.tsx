@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { requestWithdrawal } from "@/lib/payments.functions";
-import { formatBRL } from "@/lib/money";
+import { formatBRL, formatCPF, formatPhone, isValidCPF, onlyDigits } from "@/lib/money";
 
 type WalletType = "player" | "affiliate";
 type PixKeyType = "cpf" | "email" | "phone" | "random";
