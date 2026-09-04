@@ -134,7 +134,13 @@ export function WithdrawDialog({
 
           <div className="space-y-1.5">
             <Label>Tipo de chave PIX</Label>
-            <Select value={pixKeyType} onValueChange={(value) => setPixKeyType(value as PixKeyType)}>
+            <Select
+              value={pixKeyType}
+              onValueChange={(value) => {
+                setPixKeyType(value as PixKeyType);
+                setPixKey("");
+              }}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
