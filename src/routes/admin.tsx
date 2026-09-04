@@ -875,12 +875,14 @@ function SettingsField({
   meta,
   value,
   onChange,
+  error,
 }: {
   table: string;
   fieldKey: string;
   meta: FieldMeta;
   value: SettingsValue;
   onChange: (next: SettingsValue) => void;
+  error?: string | null;
 }) {
   const id = `${table}-${fieldKey}`;
   const control = meta.control ?? "text";
