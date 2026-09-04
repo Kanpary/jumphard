@@ -155,7 +155,30 @@ export function WithdrawDialog({
 
           <div className="space-y-1.5">
             <Label htmlFor="pix-key">Chave PIX</Label>
-            <Input id="pix-key" value={pixKey} onChange={(event) => setPixKey(event.target.value)} required />
+            <Input
+              id="pix-key"
+              value={pixKey}
+              inputMode={pixKeyType === "cpf" || pixKeyType === "phone" ? "numeric" : "text"}
+              type={pixKeyType === "email" ? "email" : "text"}
+              placeholder={
+                pixKeyType === "cpf"
+                  ? "000.000.000-00"
+                  : pixKeyType === "phone"
+                    ? "(11) 90000-0000"
+                    : pixKeyType === "email"
+                      ? "voce@email.com"
+                      : "00000000-0000-0000-0000-000000000000"
+              }
+              onChange={(event) => {
+                const value = event.target.value;
+                if (pixKeyType === "cpf") setPixKey(formatCPF(onlyDigits(value).slice(0, 11)));
+                else if (pixKeyType === "phone") setPixKey(formatPhone(onlyDigits(value).slice(0, 11)));
+                else setPixKey(value);
+              }}
+              aria-invalid={Boolean(pixKeyError)}
+              required
+            />
+            {pixKeyError ? <p className="text-xs text-destructive">{pixKeyError}</p> : null}
           </div>
 
           <div className="space-y-1.5">
@@ -165,10 +188,14 @@ export function WithdrawDialog({
               type="number"
               step="0.01"
               min={min}
+              max={balance}
+              inputMode="decimal"
               value={amount}
               onChange={(event) => setAmount(event.target.value)}
+              aria-invalid={Boolean(amountError)}
               required
             />
+            {amountError ? <p className="text-xs text-destructive">{amountError}</p> : null}
           </div>
 
           <Button type="submit" className="w-full" disabled={loading}>
