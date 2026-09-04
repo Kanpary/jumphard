@@ -48,14 +48,49 @@ export function WithdrawDialog({
   const min = walletType === "affiliate" ? minAffiliate : minPlayer;
   const balance = walletType === "affiliate" ? affiliateBalance : playerBalance;
 
+  const parsedAmount = Number(amount.replace(",", "."));
+  const amountError = !amount.trim()
+    ? "Informe o valor do saque."
+    : !Number.isFinite(parsedAmount)
+      ? "Valor inválido."
+      : parsedAmount < min
+        ? `O saque mínimo é ${formatBRL(min)}.`
+        : parsedAmount > balance
+          ? `Saldo insuficiente. Disponível: ${formatBRL(balance)}.`
+          : null;
+
+  const digits = onlyDigits(pixKey);
+  const pixKeyError = !pixKey.trim()
+    ? "Informe a chave PIX."
+    : pixKeyType === "cpf"
+      ? !isValidCPF(digits)
+        ? "CPF inválido."
+        : null
+      : pixKeyType === "email"
+        ? !/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(pixKey.trim())
+          ? "E-mail inválido."
+          : null
+        : pixKeyType === "phone"
+          ? digits.length < 10 || digits.length > 11
+            ? "Telefone inválido. Use DDD + número."
+            : null
+          : !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(pixKey.trim())
+            ? "Chave aleatória inválida (formato UUID)."
+            : null;
+
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
+    const error = amountError ?? pixKeyError;
+    if (error) {
+      toast.error(error);
+      return;
+    }
     setLoading(true);
     try {
       await request({
         data: {
-          amount: Number(amount),
-          pixKey: pixKey.trim(),
+          amount: Number(parsedAmount.toFixed(2)),
+          pixKey: pixKeyType === "cpf" || pixKeyType === "phone" ? digits : pixKey.trim(),
           pixKeyType,
           walletType,
         },
