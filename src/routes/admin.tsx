@@ -875,12 +875,14 @@ function SettingsField({
   meta,
   value,
   onChange,
+  error,
 }: {
   table: string;
   fieldKey: string;
   meta: FieldMeta;
   value: SettingsValue;
   onChange: (next: SettingsValue) => void;
+  error?: string | null;
 }) {
   const id = `${table}-${fieldKey}`;
   const control = meta.control ?? "text";
@@ -944,6 +946,7 @@ function SettingsField({
           min={meta.min}
           max={meta.max}
           placeholder={control === "url" ? "https://..." : undefined}
+          aria-invalid={Boolean(error)}
           className={control === "currency" ? "pl-9" : control === "percent" ? "pr-9" : undefined}
           value={value === null ? "" : String(value)}
           onChange={(event) => {
@@ -957,6 +960,7 @@ function SettingsField({
           </span>
         ) : null}
       </div>
+      {error ? <p className="text-xs text-destructive">{error}</p> : null}
       {meta.help ? <p className="text-xs text-muted-foreground">{meta.help}</p> : null}
     </div>
   );
@@ -1020,6 +1024,13 @@ function SettingsGroup({
 
   const dirty = Object.keys(draft).length > 0;
 
+  const errors = new Map<string, string>();
+  for (const key of Object.keys(draft)) {
+    const message = validateSettingValue(fieldMeta(table, key), current(key));
+    if (message) errors.set(key, message);
+  }
+  const hasErrors = errors.size > 0;
+
   return (
     <Card>
       <CardHeader className="gap-1">
@@ -1038,6 +1049,7 @@ function SettingsGroup({
                   fieldKey={key}
                   meta={fieldMeta(table, key)}
                   value={current(key)}
+                  error={errors.get(key) ?? null}
                   onChange={(next) => setDraft((prev) => ({ ...prev, [key]: next }))}
                 />
               ))}
@@ -1046,7 +1058,7 @@ function SettingsGroup({
         ))}
 
         <div className="flex flex-wrap items-center gap-3 border-t border-border pt-4">
-          <Button disabled={!dirty || mutation.isPending} onClick={() => mutation.mutate(draft)}>
+          <Button disabled={!dirty || hasErrors || mutation.isPending} onClick={() => mutation.mutate(draft)}>
             {mutation.isPending ? "Salvando..." : "Salvar alterações"}
           </Button>
           <Button variant="ghost" size="sm" disabled={!dirty} onClick={() => setDraft({})}>

@@ -647,3 +647,59 @@ export function fieldMeta(table: string, key: string): FieldMeta {
     control: "text",
   };
 }
+
+/* ------------------------------------------------------------------ */
+/* Validação de campos do painel                                       */
+/* ------------------------------------------------------------------ */
+
+/** Valida uma URL http(s) usada em banners e imagens do painel. */
+export function isValidHttpUrl(value: string): boolean {
+  try {
+    const url = new URL(value.trim());
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+/** Valida o valor de um campo de configuração conforme o tipo/limites do metadado. */
+export function validateSettingValue(meta: FieldMeta, value: unknown): string | null {
+  const control = meta.control ?? "text";
+  if (control === "switch" || control === "select") return null;
+
+  if (control === "url") {
+    const raw = typeof value === "string" ? value.trim() : "";
+    if (raw === "") return null;
+    return isValidHttpUrl(raw) ? null : "Informe uma URL válida iniciando com https://";
+  }
+
+  if (control === "number" || control === "currency" || control === "percent") {
+    if (value === null || value === "" || value === undefined) return "Campo obrigatório.";
+    const parsed = typeof value === "number" ? value : Number(String(value).replace(",", "."));
+    if (!Number.isFinite(parsed)) return "Informe um número válido.";
+    const min = meta.min ?? (control === "percent" || control === "currency" ? 0 : undefined);
+    const max = meta.max ?? (control === "percent" ? 100 : undefined);
+    if (min !== undefined && parsed < min) return `Valor mínimo: ${min}.`;
+    if (max !== undefined && parsed > max) return `Valor máximo: ${max}.`;
+    return null;
+  }
+
+  if (typeof value === "string" && value.length > 300) return "Máximo de 300 caracteres.";
+  return null;
+}
+
+/** Valida um valor individual por jogador (vazio = usar configuração global). */
+export function validatePlayerOverride(
+  label: string,
+  raw: string,
+  limits?: { min?: number; max?: number },
+): string | null {
+  const value = raw.trim().replace(",", ".");
+  if (value === "") return null;
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return `Valor inválido em "${label}".`;
+  const min = limits?.min ?? 0;
+  if (parsed < min) return `Valor mínimo: ${min}.`;
+  if (limits?.max !== undefined && parsed > limits.max) return `Valor máximo: ${limits.max}.`;
+  return null;
+}
