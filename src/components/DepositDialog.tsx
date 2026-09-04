@@ -169,8 +169,11 @@ export function DepositDialog({ minDeposit, onCredited, trigger }: Props) {
                 step="0.01"
                 value={amount}
                 onChange={(event) => setAmount(event.target.value)}
+                inputMode="decimal"
                 required
+                aria-invalid={Boolean(amountError)}
               />
+              {amountError ? <p className="text-xs text-destructive">{amountError}</p> : null}
             </div>
             <div className="flex flex-wrap gap-2">
               {[20, 50, 100, 200].map((value) => (
