@@ -583,31 +583,36 @@ function PlayerSettingsDialog({ user, onSaved }: { user: PlayerSettingsUser; onS
             <Switch checked={influencer} onCheckedChange={setInfluencer} />
           </div>
 
-          {PLAYER_FIELDS.map((field) => (
-            <div key={field.key} className="space-y-1.5">
-              <Label htmlFor={`${user.user_id}-${field.key}`}>{field.label}</Label>
-              <Input
-                id={`${user.user_id}-${field.key}`}
-                inputMode="decimal"
-                placeholder="Global"
-                value={values[field.key] ?? ""}
-                onChange={(event) =>
-                  setValues((prev) => ({
-                    ...prev,
-                    [field.key]: event.target.value.replace(/[^0-9.,]/g, ""),
-                  }))
-                }
-              />
-              <p className="text-xs text-muted-foreground">{field.help}</p>
-            </div>
-          ))}
+          {PLAYER_FIELDS.map((field) => {
+            const error = validatePlayerOverride(field.label, values[field.key] ?? "", PLAYER_LIMITS[field.key]);
+            return (
+              <div key={field.key} className="space-y-1.5">
+                <Label htmlFor={`${user.user_id}-${field.key}`}>{field.label}</Label>
+                <Input
+                  id={`${user.user_id}-${field.key}`}
+                  inputMode="decimal"
+                  placeholder="Global"
+                  value={values[field.key] ?? ""}
+                  aria-invalid={Boolean(error)}
+                  onChange={(event) =>
+                    setValues((prev) => ({
+                      ...prev,
+                      [field.key]: event.target.value.replace(/[^0-9.,]/g, ""),
+                    }))
+                  }
+                />
+                {error ? <p className="text-xs text-destructive">{error}</p> : null}
+                <p className="text-xs text-muted-foreground">{field.help}</p>
+              </div>
+            );
+          })}
         </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>
             Cancelar
           </Button>
-          <Button onClick={() => mutation.mutate()} disabled={mutation.isPending}>
+          <Button onClick={() => mutation.mutate()} disabled={mutation.isPending || hasErrors}>
             {mutation.isPending ? "Salvando..." : "Salvar configurações"}
           </Button>
         </DialogFooter>
