@@ -1264,12 +1264,16 @@ function BannersTab() {
           <CardTitle className="text-base">Novo banner</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-4">
-          <Input
-            className="sm:col-span-2"
-            placeholder="https://.../banner.jpg"
-            value={imageUrl}
-            onChange={(event) => setImageUrl(event.target.value)}
-          />
+          <div className="space-y-1.5 sm:col-span-2">
+            <Input
+              placeholder="https://.../banner.jpg"
+              value={imageUrl}
+              inputMode="url"
+              aria-invalid={Boolean(bannerUrlError)}
+              onChange={(event) => setImageUrl(event.target.value)}
+            />
+            {bannerUrlError ? <p className="text-xs text-destructive">{bannerUrlError}</p> : null}
+          </div>
           <Input placeholder="Título (opcional)" value={title} onChange={(e) => setTitle(e.target.value)} />
           <div className="flex gap-2">
             <select
