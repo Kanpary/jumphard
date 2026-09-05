@@ -32,6 +32,7 @@ import {
   WITHDRAWAL_STATUSES,
   fieldMeta,
   friendlyError,
+  isValidHttpUrl,
   statusLabel,
   statusTone,
   validatePlayerOverride,
