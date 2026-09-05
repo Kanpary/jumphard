@@ -32,8 +32,11 @@ import {
   WITHDRAWAL_STATUSES,
   fieldMeta,
   friendlyError,
+  isValidHttpUrl,
   statusLabel,
   statusTone,
+  validatePlayerOverride,
+  validateSettingValue,
   type FieldMeta,
 } from "@/lib/admin-ui";
 import {
@@ -507,6 +510,17 @@ const PLAYER_FIELDS = [
   },
 ];
 
+const PLAYER_LIMITS: Record<string, { min?: number; max?: number }> = {
+  customRtp: { min: 1, max: 100 },
+  customRolloverMultiplier: { min: 0, max: 100 },
+  customCoinReturn: { min: 0, max: 100 },
+  customGameDifficulty: { min: 0, max: 100 },
+  customGameSpeed: { min: 0.1, max: 20 },
+  customJumpHeight: { min: 0.1, max: 20 },
+  customBonusPercent: { min: 0, max: 500 },
+  customCommissionPercent: { min: 0, max: 100 },
+};
+
 /** Configurações individuais por jogador (RTP, rollover, jogo, bônus e comissão). */
 function PlayerSettingsDialog({ user, onSaved }: { user: PlayerSettingsUser; onSaved: () => void }) {
   const updateFn = useServerFn(updateUser);
@@ -528,6 +542,10 @@ function PlayerSettingsDialog({ user, onSaved }: { user: PlayerSettingsUser; onS
     }
     setOpen(next);
   }
+
+  const hasErrors = PLAYER_FIELDS.some((field) =>
+    Boolean(validatePlayerOverride(field.label, values[field.key] ?? "", PLAYER_LIMITS[field.key])),
+  );
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -581,31 +599,36 @@ function PlayerSettingsDialog({ user, onSaved }: { user: PlayerSettingsUser; onS
             <Switch checked={influencer} onCheckedChange={setInfluencer} />
           </div>
 
-          {PLAYER_FIELDS.map((field) => (
-            <div key={field.key} className="space-y-1.5">
-              <Label htmlFor={`${user.user_id}-${field.key}`}>{field.label}</Label>
-              <Input
-                id={`${user.user_id}-${field.key}`}
-                inputMode="decimal"
-                placeholder="Global"
-                value={values[field.key] ?? ""}
-                onChange={(event) =>
-                  setValues((prev) => ({
-                    ...prev,
-                    [field.key]: event.target.value.replace(/[^0-9.,]/g, ""),
-                  }))
-                }
-              />
-              <p className="text-xs text-muted-foreground">{field.help}</p>
-            </div>
-          ))}
+          {PLAYER_FIELDS.map((field) => {
+            const error = validatePlayerOverride(field.label, values[field.key] ?? "", PLAYER_LIMITS[field.key]);
+            return (
+              <div key={field.key} className="space-y-1.5">
+                <Label htmlFor={`${user.user_id}-${field.key}`}>{field.label}</Label>
+                <Input
+                  id={`${user.user_id}-${field.key}`}
+                  inputMode="decimal"
+                  placeholder="Global"
+                  value={values[field.key] ?? ""}
+                  aria-invalid={Boolean(error)}
+                  onChange={(event) =>
+                    setValues((prev) => ({
+                      ...prev,
+                      [field.key]: event.target.value.replace(/[^0-9.,]/g, ""),
+                    }))
+                  }
+                />
+                {error ? <p className="text-xs text-destructive">{error}</p> : null}
+                <p className="text-xs text-muted-foreground">{field.help}</p>
+              </div>
+            );
+          })}
         </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>
             Cancelar
           </Button>
-          <Button onClick={() => mutation.mutate()} disabled={mutation.isPending}>
+          <Button onClick={() => mutation.mutate()} disabled={mutation.isPending || hasErrors}>
             {mutation.isPending ? "Salvando..." : "Salvar configurações"}
           </Button>
         </DialogFooter>
@@ -1203,7 +1226,10 @@ function BannersTab() {
   const [placement, setPlacement] = useState<(typeof PLACEMENTS)[number]>("landing");
 
   const banners = useQuery({ queryKey: ["admin-banners"], queryFn: () => listFn() });
-  // erro exibido abaixo do formulário
+  const bannerUrlError =
+    imageUrl.trim() === "" || isValidHttpUrl(imageUrl.trim())
+      ? null
+      : "Informe uma URL de imagem válida (começando com http:// ou https://).";
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["admin-banners"] });
 
   const saveMutation = useMutation({
@@ -1242,12 +1268,16 @@ function BannersTab() {
           <CardTitle className="text-base">Novo banner</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-4">
-          <Input
-            className="sm:col-span-2"
-            placeholder="https://.../banner.jpg"
-            value={imageUrl}
-            onChange={(event) => setImageUrl(event.target.value)}
-          />
+          <div className="space-y-1.5 sm:col-span-2">
+            <Input
+              placeholder="https://.../banner.jpg"
+              value={imageUrl}
+              inputMode="url"
+              aria-invalid={Boolean(bannerUrlError)}
+              onChange={(event) => setImageUrl(event.target.value)}
+            />
+            {bannerUrlError ? <p className="text-xs text-destructive">{bannerUrlError}</p> : null}
+          </div>
           <Input placeholder="Título (opcional)" value={title} onChange={(e) => setTitle(e.target.value)} />
           <div className="flex gap-2">
             <select
@@ -1261,7 +1291,10 @@ function BannersTab() {
                 </option>
               ))}
             </select>
-            <Button disabled={!imageUrl.trim() || saveMutation.isPending} onClick={() => saveMutation.mutate()}>
+            <Button
+              disabled={!imageUrl.trim() || Boolean(bannerUrlError) || saveMutation.isPending}
+              onClick={() => saveMutation.mutate()}
+            >
               Salvar
             </Button>
           </div>
