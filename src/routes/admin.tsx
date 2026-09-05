@@ -542,6 +542,10 @@ function PlayerSettingsDialog({ user, onSaved }: { user: PlayerSettingsUser; onS
     setOpen(next);
   }
 
+  const hasErrors = PLAYER_FIELDS.some((field) =>
+    Boolean(validatePlayerOverride(field.label, values[field.key] ?? "", PLAYER_LIMITS[field.key])),
+  );
+
   const mutation = useMutation({
     mutationFn: async () => {
       const payload: Record<string, unknown> = { userId: user.user_id, isInfluencer: influencer };
