@@ -509,6 +509,17 @@ const PLAYER_FIELDS = [
   },
 ];
 
+const PLAYER_LIMITS: Record<string, { min?: number; max?: number }> = {
+  customRtp: { min: 1, max: 100 },
+  customRolloverMultiplier: { min: 0, max: 100 },
+  customCoinReturn: { min: 0, max: 100 },
+  customGameDifficulty: { min: 0, max: 100 },
+  customGameSpeed: { min: 0.1, max: 20 },
+  customJumpHeight: { min: 0.1, max: 20 },
+  customBonusPercent: { min: 0, max: 500 },
+  customCommissionPercent: { min: 0, max: 100 },
+};
+
 /** Configurações individuais por jogador (RTP, rollover, jogo, bônus e comissão). */
 function PlayerSettingsDialog({ user, onSaved }: { user: PlayerSettingsUser; onSaved: () => void }) {
   const updateFn = useServerFn(updateUser);
