@@ -1291,7 +1291,10 @@ function BannersTab() {
                 </option>
               ))}
             </select>
-            <Button disabled={!imageUrl.trim() || saveMutation.isPending} onClick={() => saveMutation.mutate()}>
+            <Button
+              disabled={!imageUrl.trim() || Boolean(bannerUrlError) || saveMutation.isPending}
+              onClick={() => saveMutation.mutate()}
+            >
               Salvar
             </Button>
           </div>
