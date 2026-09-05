@@ -1225,7 +1225,10 @@ function BannersTab() {
   const [placement, setPlacement] = useState<(typeof PLACEMENTS)[number]>("landing");
 
   const banners = useQuery({ queryKey: ["admin-banners"], queryFn: () => listFn() });
-  // erro exibido abaixo do formulário
+  const bannerUrlError =
+    imageUrl.trim() === "" || isValidHttpUrl(imageUrl.trim())
+      ? null
+      : "Informe uma URL de imagem válida (começando com http:// ou https://).";
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["admin-banners"] });
 
   const saveMutation = useMutation({
