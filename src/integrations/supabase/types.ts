@@ -44,6 +44,42 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: number
+          kind: string
+          metadata: Json | null
+          read_at: string | null
+          severity: string
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: number
+          kind: string
+          metadata?: Json | null
+          read_at?: string | null
+          severity?: string
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: number
+          kind?: string
+          metadata?: Json | null
+          read_at?: string | null
+          severity?: string
+          title?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       affiliate_commissions: {
         Row: {
           affiliate_user_id: string
@@ -279,6 +315,7 @@ export type Database = {
           deposit_card_2: number | null
           deposit_card_3: number | null
           deposit_card_4: number | null
+          deposit_fee_percent: number
           id: string
           min_deposit: number
           min_withdrawal_affiliate: number
@@ -299,6 +336,7 @@ export type Database = {
           deposit_card_2?: number | null
           deposit_card_3?: number | null
           deposit_card_4?: number | null
+          deposit_fee_percent?: number
           id?: string
           min_deposit?: number
           min_withdrawal_affiliate?: number
@@ -319,6 +357,7 @@ export type Database = {
           deposit_card_2?: number | null
           deposit_card_3?: number | null
           deposit_card_4?: number | null
+          deposit_fee_percent?: number
           id?: string
           min_deposit?: number
           min_withdrawal_affiliate?: number
@@ -391,6 +430,13 @@ export type Database = {
       }
       game_settings: {
         Row: {
+          animations_enabled: boolean
+          bet_options: Json
+          bonus_duration_seconds: number
+          bonus_enabled: boolean
+          bonus_min_coins: number
+          bonus_multiplier: number
+          bonus_trigger_chance: number
           coin_frequency: number
           coin_return: number
           common_player_coin_percentage: number
@@ -408,11 +454,19 @@ export type Database = {
           progressive_distance_multiplier: number
           register_banner_url: string | null
           rtp_global: number
+          sounds_enabled: boolean
           spring_boost: number
           spring_frequency: number
           updated_at: string
         }
         Insert: {
+          animations_enabled?: boolean
+          bet_options?: Json
+          bonus_duration_seconds?: number
+          bonus_enabled?: boolean
+          bonus_min_coins?: number
+          bonus_multiplier?: number
+          bonus_trigger_chance?: number
           coin_frequency?: number
           coin_return?: number
           common_player_coin_percentage?: number
@@ -430,11 +484,19 @@ export type Database = {
           progressive_distance_multiplier?: number
           register_banner_url?: string | null
           rtp_global?: number
+          sounds_enabled?: boolean
           spring_boost?: number
           spring_frequency?: number
           updated_at?: string
         }
         Update: {
+          animations_enabled?: boolean
+          bet_options?: Json
+          bonus_duration_seconds?: number
+          bonus_enabled?: boolean
+          bonus_min_coins?: number
+          bonus_multiplier?: number
+          bonus_trigger_chance?: number
           coin_frequency?: number
           coin_return?: number
           common_player_coin_percentage?: number
@@ -452,6 +514,7 @@ export type Database = {
           progressive_distance_multiplier?: number
           register_banner_url?: string | null
           rtp_global?: number
+          sounds_enabled?: boolean
           spring_boost?: number
           spring_frequency?: number
           updated_at?: string
@@ -538,6 +601,13 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_type: string
+          admin_notes: string | null
+          birth_date: string | null
+          block_mode: string | null
+          block_reason: string | null
+          blocked_at: string | null
+          blocked_by: string | null
           comissao_cpa: number | null
           comissao_cpa_nivel2: number | null
           cpf: string | null
@@ -553,15 +623,27 @@ export type Database = {
           deleted_at: string | null
           email: string
           full_name: string
+          is_blocked: boolean
           is_influencer: boolean
+          last_ip: string | null
           phone: string | null
+          pix_key: string | null
+          pix_key_type: string | null
           referral_code: string | null
           referred_by: string | null
+          risk_score: number
           updated_at: string
           user_id: string
           username: string | null
         }
         Insert: {
+          account_type?: string
+          admin_notes?: string | null
+          birth_date?: string | null
+          block_mode?: string | null
+          block_reason?: string | null
+          blocked_at?: string | null
+          blocked_by?: string | null
           comissao_cpa?: number | null
           comissao_cpa_nivel2?: number | null
           cpf?: string | null
@@ -577,15 +659,27 @@ export type Database = {
           deleted_at?: string | null
           email: string
           full_name?: string
+          is_blocked?: boolean
           is_influencer?: boolean
+          last_ip?: string | null
           phone?: string | null
+          pix_key?: string | null
+          pix_key_type?: string | null
           referral_code?: string | null
           referred_by?: string | null
+          risk_score?: number
           updated_at?: string
           user_id: string
           username?: string | null
         }
         Update: {
+          account_type?: string
+          admin_notes?: string | null
+          birth_date?: string | null
+          block_mode?: string | null
+          block_reason?: string | null
+          blocked_at?: string | null
+          blocked_by?: string | null
           comissao_cpa?: number | null
           comissao_cpa_nivel2?: number | null
           cpf?: string | null
@@ -601,13 +695,194 @@ export type Database = {
           deleted_at?: string | null
           email?: string
           full_name?: string
+          is_blocked?: boolean
           is_influencer?: boolean
+          last_ip?: string | null
           phone?: string | null
+          pix_key?: string | null
+          pix_key_type?: string | null
           referral_code?: string | null
           referred_by?: string | null
+          risk_score?: number
           updated_at?: string
           user_id?: string
           username?: string | null
+        }
+        Relationships: []
+      }
+      security_alerts: {
+        Row: {
+          created_at: string
+          description: string
+          id: number
+          kind: string
+          metadata: Json | null
+          resolved: boolean
+          resolved_at: string | null
+          severity: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: number
+          kind: string
+          metadata?: Json | null
+          resolved?: boolean
+          resolved_at?: string | null
+          severity?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: number
+          kind?: string
+          metadata?: Json | null
+          resolved?: boolean
+          resolved_at?: string | null
+          severity?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          accent_color: string
+          background_color: string
+          created_at: string
+          cta_primary_label: string
+          cta_secondary_label: string
+          custom_css: string | null
+          favicon_url: string | null
+          footer_text: string
+          hero_image_url: string | null
+          hero_subtitle: string
+          hero_title: string
+          id: string
+          logo_url: string | null
+          primary_color: string
+          show_landing_preview: boolean
+          site_name: string
+          support_enabled: boolean
+          support_welcome_message: string
+          tagline: string
+          updated_at: string
+        }
+        Insert: {
+          accent_color?: string
+          background_color?: string
+          created_at?: string
+          cta_primary_label?: string
+          cta_secondary_label?: string
+          custom_css?: string | null
+          favicon_url?: string | null
+          footer_text?: string
+          hero_image_url?: string | null
+          hero_subtitle?: string
+          hero_title?: string
+          id?: string
+          logo_url?: string | null
+          primary_color?: string
+          show_landing_preview?: boolean
+          site_name?: string
+          support_enabled?: boolean
+          support_welcome_message?: string
+          tagline?: string
+          updated_at?: string
+        }
+        Update: {
+          accent_color?: string
+          background_color?: string
+          created_at?: string
+          cta_primary_label?: string
+          cta_secondary_label?: string
+          custom_css?: string | null
+          favicon_url?: string | null
+          footer_text?: string
+          hero_image_url?: string | null
+          hero_subtitle?: string
+          hero_title?: string
+          id?: string
+          logo_url?: string | null
+          primary_color?: string
+          show_landing_preview?: boolean
+          site_name?: string
+          support_enabled?: boolean
+          support_welcome_message?: string
+          tagline?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      support_messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: number
+          sender_id: string | null
+          sender_role: string
+          ticket_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: number
+          sender_id?: string | null
+          sender_role?: string
+          ticket_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: number
+          sender_id?: string | null
+          sender_role?: string
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_tickets: {
+        Row: {
+          created_at: string
+          id: string
+          last_message_at: string
+          status: Database["public"]["Enums"]["support_status"]
+          subject: string
+          unread_for_admin: number
+          unread_for_user: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          status?: Database["public"]["Enums"]["support_status"]
+          subject?: string
+          unread_for_admin?: number
+          unread_for_user?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          status?: Database["public"]["Enums"]["support_status"]
+          subject?: string
+          unread_for_admin?: number
+          unread_for_user?: number
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -844,6 +1119,7 @@ export type Database = {
       commission_status: "pending" | "available" | "paid" | "canceled"
       deposit_status: "pending" | "paid" | "failed" | "rejected" | "canceled"
       game_session_status: "active" | "lost" | "cashed_out" | "won"
+      support_status: "open" | "pending" | "closed"
       wallet_kind: "player" | "affiliate"
       wallet_tx_type:
         | "bet"
@@ -998,6 +1274,7 @@ export const Constants = {
       commission_status: ["pending", "available", "paid", "canceled"],
       deposit_status: ["pending", "paid", "failed", "rejected", "canceled"],
       game_session_status: ["active", "lost", "cashed_out", "won"],
+      support_status: ["open", "pending", "closed"],
       wallet_kind: ["player", "affiliate"],
       wallet_tx_type: [
         "bet",

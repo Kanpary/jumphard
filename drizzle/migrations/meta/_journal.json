@@ -15,6 +15,13 @@
       "when": 1788138470278,
       "tag": "0001_add_rollover_and_player_rtp",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788815088867,
+      "tag": "0002_support_notifications_blocks_customization",
+      "breakpoints": true
     }
   ]
 }
