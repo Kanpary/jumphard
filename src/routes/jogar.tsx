@@ -131,7 +131,7 @@ function PlayPage() {
         <RolloverProgress rollover={overview.data?.rollover} compact />
         {config ? (
           <div className="space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-card/70 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/70 bg-card p-4">
               <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
                 <Coins className="size-4 text-accent" /> {coins} moedas
               </span>
@@ -146,7 +146,7 @@ function PlayPage() {
             </p>
           </div>
         ) : (
-          <Card className="border-border/60 bg-card/70">
+          <Card className="border-border/70 bg-card">
             <CardHeader>
               <CardTitle>Nova partida</CardTitle>
               <CardDescription>

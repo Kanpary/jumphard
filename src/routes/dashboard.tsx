@@ -85,7 +85,7 @@ function DashboardPage() {
 
       <PageMain className="space-y-6">
         <div className="grid gap-4 sm:grid-cols-2">
-          <Card className="border-border/60 bg-card/70">
+          <Card className="border-border/70 bg-card">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Wallet className="size-4 text-primary" /> Saldo de jogo
@@ -95,7 +95,7 @@ function DashboardPage() {
               <p className="text-3xl font-black text-foreground">{formatBRL(wallet?.player_balance)}</p>
             </CardContent>
           </Card>
-          <Card className="border-border/60 bg-card/70">
+          <Card className="border-border/70 bg-card">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Users className="size-4 text-accent" /> Comissões de afiliado
@@ -124,14 +124,14 @@ function DashboardPage() {
             affiliateBalance={Number(wallet?.affiliate_balance ?? 0)}
             onDone={() => overview.refetch()}
           />
-          <Button asChild variant="default" className="shadow-[var(--shadow-glow)]">
+          <Button asChild variant="default">
             <Link to="/jogar">
               <Gamepad2 className="mr-2 size-4" /> Jogar Jump Cash
             </Link>
           </Button>
         </div>
 
-        <Card className="border-border/60 bg-card/70">
+        <Card className="border-border/70 bg-card">
           <CardHeader className="pb-3">
             <CardTitle className="text-base">Seu link de indicação</CardTitle>
           </CardHeader>
@@ -216,7 +216,7 @@ interface Row {
 
 function ListCard({ rows, empty }: { rows: Row[]; empty: string }) {
   return (
-    <Card className="mt-4 border-border/60 bg-card/70">
+    <Card className="mt-4 border-border/70 bg-card">
       <CardContent className="divide-y divide-border/60 p-0">
         {rows.length === 0 ? (
           <p className="p-6 text-sm text-muted-foreground">{empty}</p>

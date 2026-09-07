@@ -23,8 +23,8 @@ export function RolloverProgress({
     <div
       className={
         compact
-          ? "rounded-lg border border-border/60 bg-card/70 p-3"
-          : "rounded-xl border border-border/60 bg-card/70 p-4"
+          ? "rounded-lg border border-border/70 bg-card p-3"
+          : "rounded-xl border border-border/70 bg-card p-4"
       }
     >
       <div className="flex items-center justify-between gap-3">
