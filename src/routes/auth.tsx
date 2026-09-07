@@ -193,15 +193,10 @@ function AuthPage() {
   const errorOf = (key: keyof typeof form) => (touched[key] ? errors[key] : undefined);
 
   return (
-    <div
-      className="flex min-h-screen items-center justify-center px-5 py-10"
-      style={{ background: "var(--gradient-hero)" }}
-    >
-      <Card className="w-full max-w-md border-border/60 bg-card/80 backdrop-blur">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10 text-foreground">
+      <Card className="w-full max-w-md border-border/70 bg-card">
         <CardHeader>
-          <Link to="/" className="text-sm font-black tracking-tight text-foreground">
-            Jump<span className="text-primary">Cash</span>
-          </Link>
+          <BrandMark />
           <CardTitle className="pt-2 text-2xl">{isRegister ? "Criar conta" : "Entrar"}</CardTitle>
           <CardDescription>
             {isRegister
