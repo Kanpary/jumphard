@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft, Coins } from "lucide-react";
 import { toast } from "sonner";
 
+import { PageMain, PageShell, TopBar } from "@/components/layout/AppShell";
 import { PandaJump } from "@/components/PandaJump";
 import { RolloverProgress } from "@/components/RolloverProgress";
 import { Button } from "@/components/ui/button";
@@ -117,21 +118,24 @@ function PlayPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--gradient-hero)" }}>
-      <header className="mx-auto flex max-w-3xl items-center justify-between px-5 py-5">
-        <Button asChild variant="ghost" size="sm">
-          <Link to="/dashboard">
-            <ArrowLeft className="mr-1.5 size-4" /> Voltar
-          </Link>
-        </Button>
+    <PageShell>
+      <TopBar
+        left={
+          <Button asChild variant="ghost" size="sm">
+            <Link to="/dashboard">
+              <ArrowLeft className="mr-1.5 size-4" /> Voltar
+            </Link>
+          </Button>
+        }
+      >
         <span className="text-sm font-semibold text-foreground">Saldo: {formatBRL(balance)}</span>
-      </header>
+      </TopBar>
 
-      <main className="mx-auto max-w-3xl space-y-4 px-5 pb-16">
+      <PageMain className="max-w-3xl space-y-4">
         <RolloverProgress rollover={overview.data?.rollover} compact />
         {config ? (
           <div className="space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-card/70 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/70 bg-card p-4">
               <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
                 <Coins className="size-4 text-accent" /> {coins} moedas
               </span>
@@ -146,7 +150,7 @@ function PlayPage() {
             </p>
           </div>
         ) : (
-          <Card className="border-border/60 bg-card/70">
+          <Card className="border-border/70 bg-card">
             <CardHeader>
               <CardTitle>Nova partida</CardTitle>
               <CardDescription>
@@ -181,7 +185,7 @@ function PlayPage() {
             </CardContent>
           </Card>
         )}
-      </main>
-    </div>
+      </PageMain>
+    </PageShell>
   );
 }

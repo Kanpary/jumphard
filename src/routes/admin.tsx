@@ -164,8 +164,9 @@ function AdminPage() {
   const allowed = isAdmin.data === true;
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--gradient-hero)" }}>
-      <header className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-5 sm:px-5 sm:py-6">
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="border-b border-border/70 bg-background/95">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6">
         <div className="min-w-0">
           <h1 className="truncate text-lg font-black tracking-tight text-foreground sm:text-xl">
             Painel administrativo
@@ -177,9 +178,10 @@ function AdminPage() {
             <ArrowLeft className="mr-1.5 size-4" /> Minha conta
           </Link>
         </Button>
+        </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 pb-16 sm:px-5">
+      <main className="mx-auto max-w-6xl px-4 pb-16 pt-6 sm:px-6">
         {checking ? (
           <p className="text-sm text-muted-foreground">Verificando permissões...</p>
         ) : isAdmin.error ? (

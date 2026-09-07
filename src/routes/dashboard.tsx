@@ -6,6 +6,7 @@ import { Copy, Gamepad2, LogOut, ShieldCheck, Users, Wallet } from "lucide-react
 import { toast } from "sonner";
 
 import { DepositDialog } from "@/components/DepositDialog";
+import { PageMain, PageShell, TopBar } from "@/components/layout/AppShell";
 import { RolloverProgress } from "@/components/RolloverProgress";
 import { WithdrawDialog } from "@/components/WithdrawDialog";
 import { Badge } from "@/components/ui/badge";
@@ -60,35 +61,31 @@ function DashboardPage() {
       : "";
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--gradient-hero)" }}>
-      <header className="mx-auto flex max-w-5xl items-center justify-between px-5 py-6">
-        <Link to="/" className="text-lg font-black tracking-tight text-foreground">
-          Jump<span className="text-primary">Cash</span>
-        </Link>
-        <div className="flex items-center gap-2">
-          {overview.data?.isAdmin ? (
-            <Button asChild variant="secondary" size="sm">
-              <Link to="/admin">
-                <ShieldCheck className="mr-1.5 size-4" /> Admin
-              </Link>
-            </Button>
-          ) : null}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={async () => {
-              await signOut();
-              navigate({ to: "/" });
-            }}
-          >
-            <LogOut className="size-4" />
+    <PageShell>
+      <TopBar>
+        {overview.data?.isAdmin ? (
+          <Button asChild variant="secondary" size="sm">
+            <Link to="/admin">
+              <ShieldCheck className="mr-1.5 size-4" /> Admin
+            </Link>
           </Button>
-        </div>
-      </header>
+        ) : null}
+        <Button
+          variant="ghost"
+          size="sm"
+          aria-label="Sair da conta"
+          onClick={async () => {
+            await signOut();
+            navigate({ to: "/" });
+          }}
+        >
+          <LogOut className="size-4" />
+        </Button>
+      </TopBar>
 
-      <main className="mx-auto max-w-5xl space-y-6 px-5 pb-16">
+      <PageMain className="space-y-6">
         <div className="grid gap-4 sm:grid-cols-2">
-          <Card className="border-border/60 bg-card/70">
+          <Card className="border-border/70 bg-card">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Wallet className="size-4 text-primary" /> Saldo de jogo
@@ -98,7 +95,7 @@ function DashboardPage() {
               <p className="text-3xl font-black text-foreground">{formatBRL(wallet?.player_balance)}</p>
             </CardContent>
           </Card>
-          <Card className="border-border/60 bg-card/70">
+          <Card className="border-border/70 bg-card">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Users className="size-4 text-accent" /> Comissões de afiliado
@@ -127,14 +124,14 @@ function DashboardPage() {
             affiliateBalance={Number(wallet?.affiliate_balance ?? 0)}
             onDone={() => overview.refetch()}
           />
-          <Button asChild variant="default" className="shadow-[var(--shadow-glow)]">
+          <Button asChild variant="default">
             <Link to="/jogar">
               <Gamepad2 className="mr-2 size-4" /> Jogar Jump Cash
             </Link>
           </Button>
         </div>
 
-        <Card className="border-border/60 bg-card/70">
+        <Card className="border-border/70 bg-card">
           <CardHeader className="pb-3">
             <CardTitle className="text-base">Seu link de indicação</CardTitle>
           </CardHeader>
@@ -203,8 +200,8 @@ function DashboardPage() {
             />
           </TabsContent>
         </Tabs>
-      </main>
-    </div>
+      </PageMain>
+    </PageShell>
   );
 }
 
@@ -219,7 +216,7 @@ interface Row {
 
 function ListCard({ rows, empty }: { rows: Row[]; empty: string }) {
   return (
-    <Card className="mt-4 border-border/60 bg-card/70">
+    <Card className="mt-4 border-border/70 bg-card">
       <CardContent className="divide-y divide-border/60 p-0">
         {rows.length === 0 ? (
           <p className="p-6 text-sm text-muted-foreground">{empty}</p>
