@@ -117,17 +117,20 @@ function PlayPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--gradient-hero)" }}>
-      <header className="mx-auto flex max-w-3xl items-center justify-between px-5 py-5">
-        <Button asChild variant="ghost" size="sm">
-          <Link to="/dashboard">
-            <ArrowLeft className="mr-1.5 size-4" /> Voltar
-          </Link>
-        </Button>
+    <PageShell>
+      <TopBar
+        left={
+          <Button asChild variant="ghost" size="sm">
+            <Link to="/dashboard">
+              <ArrowLeft className="mr-1.5 size-4" /> Voltar
+            </Link>
+          </Button>
+        }
+      >
         <span className="text-sm font-semibold text-foreground">Saldo: {formatBRL(balance)}</span>
-      </header>
+      </TopBar>
 
-      <main className="mx-auto max-w-3xl space-y-4 px-5 pb-16">
+      <PageMain className="max-w-3xl space-y-4">
         <RolloverProgress rollover={overview.data?.rollover} compact />
         {config ? (
           <div className="space-y-4">
