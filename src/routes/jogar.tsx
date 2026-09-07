@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft, Coins } from "lucide-react";
 import { toast } from "sonner";
 
+import { PageMain, PageShell, TopBar } from "@/components/layout/AppShell";
 import { PandaJump } from "@/components/PandaJump";
 import { RolloverProgress } from "@/components/RolloverProgress";
 import { Button } from "@/components/ui/button";
@@ -184,7 +185,7 @@ function PlayPage() {
             </CardContent>
           </Card>
         )}
-      </main>
-    </div>
+      </PageMain>
+    </PageShell>
   );
 }
