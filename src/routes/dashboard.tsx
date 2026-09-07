@@ -6,6 +6,7 @@ import { Copy, Gamepad2, LogOut, ShieldCheck, Users, Wallet } from "lucide-react
 import { toast } from "sonner";
 
 import { DepositDialog } from "@/components/DepositDialog";
+import { PageMain, PageShell, TopBar } from "@/components/layout/AppShell";
 import { RolloverProgress } from "@/components/RolloverProgress";
 import { WithdrawDialog } from "@/components/WithdrawDialog";
 import { Badge } from "@/components/ui/badge";
