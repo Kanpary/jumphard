@@ -199,8 +199,8 @@ function DashboardPage() {
             />
           </TabsContent>
         </Tabs>
-      </main>
-    </div>
+      </PageMain>
+    </PageShell>
   );
 }
 
