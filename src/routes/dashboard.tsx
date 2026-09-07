@@ -60,33 +60,29 @@ function DashboardPage() {
       : "";
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--gradient-hero)" }}>
-      <header className="mx-auto flex max-w-5xl items-center justify-between px-5 py-6">
-        <Link to="/" className="text-lg font-black tracking-tight text-foreground">
-          Jump<span className="text-primary">Cash</span>
-        </Link>
-        <div className="flex items-center gap-2">
-          {overview.data?.isAdmin ? (
-            <Button asChild variant="secondary" size="sm">
-              <Link to="/admin">
-                <ShieldCheck className="mr-1.5 size-4" /> Admin
-              </Link>
-            </Button>
-          ) : null}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={async () => {
-              await signOut();
-              navigate({ to: "/" });
-            }}
-          >
-            <LogOut className="size-4" />
+    <PageShell>
+      <TopBar>
+        {overview.data?.isAdmin ? (
+          <Button asChild variant="secondary" size="sm">
+            <Link to="/admin">
+              <ShieldCheck className="mr-1.5 size-4" /> Admin
+            </Link>
           </Button>
-        </div>
-      </header>
+        ) : null}
+        <Button
+          variant="ghost"
+          size="sm"
+          aria-label="Sair da conta"
+          onClick={async () => {
+            await signOut();
+            navigate({ to: "/" });
+          }}
+        >
+          <LogOut className="size-4" />
+        </Button>
+      </TopBar>
 
-      <main className="mx-auto max-w-5xl space-y-6 px-5 pb-16">
+      <PageMain className="space-y-6">
         <div className="grid gap-4 sm:grid-cols-2">
           <Card className="border-border/60 bg-card/70">
             <CardHeader className="pb-2">
